@@ -1,0 +1,10 @@
+
+====== project rules ======
+
+// This file should be in DokuWiki syntax [[http://www.dokuwiki.org/syntax]] //
+
+
+  - all logging should be done through Unit instances; Log instances are allowed, but not preferred;
+  - all core functions (//TODO: define which) should return an Rval;
+  - all log messages related to success or failure should be output in the called method;
+  - all Absolute instances should call the super constructor;

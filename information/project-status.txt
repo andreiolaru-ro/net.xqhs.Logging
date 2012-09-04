@@ -1,0 +1,19 @@
+
+====== project status ======
+
+// This file should be in DokuWiki syntax [[http://www.dokuwiki.org/syntax]] //
+
+
+
+===== Milestone 0.1 =====
+
+Expected:
+  - basics of CLI defined
+  - basics of communicators defined
+  - CLI working for basic commands (e.g. add, remove, display, retrieve stuff); CLI documented
+  - information retrieval working
+  - data stored in a persistent local database
+  - merge into master
+
+Completed
+  - coherent logging; logging documented

@@ -1,0 +1,38 @@
+
+====== issues bugs comments ======
+
+// This file should be in DokuWiki syntax [[http://www.dokuwiki.org/syntax]] //
+// exception: in the file use -- and -/ instead of <del> and </del> for strikethroughs
+
+In this file:
+- always number in order, keep the numbers of items;
+- move solved issues, comments and bugs to the solved section, keeping the same number
+
+=============================================================================================================================================
+
+===== Bugs - things that are expected to work and don't work as expected
+
+
+== solved
+
+
+
+=============================================================================================================================================
+
+===== Issues - things that work as expected, but should work in a different way / be implemented differently
+
+2. the content to be delivered to the display and reporting entities (i.e. the logOutput members) should be assembled using something better
+ than string concatenation. Also, there should an option to skip assembling that output if it will never be needed.
+3. Should maybe revert to the situation where parent classes have different log signatures than children.
+
+== solved
+1. --Logging should have a log of its own, configured by static function (with a UnitConfigData)-/ -> solved with the masterLog
+
+=============================================================================================================================================
+
+====== Comments - general comments and questions
+
+
+
+== solved
+

@@ -1,0 +1,46 @@
+====== The changelog ======
+
+// This file should be in DokuWiki syntax [[http://www.dokuwiki.org/syntax]] //
+// exception: in the file use -- and -/ instead of <del> and </del> for strikethroughs
+
+===== 27.08.2012 Work in Absolute and Unit; fixes and doc (andreiolaru) =====
+
+  - fixes to additional element generation (untested)
+  - fixes of todo tags
+  - fixes and documentation to some Soda elements
+  - fix of Absolute log names
+  - move Absolute to soda
+  - documentation of Unit and UnitConfigData; also some cleaning.
+
+===== 25.08.2012 toString and logging fixes and rehaul (andreiolaru) =====
+
+  - renamed Unit.getName() to getUnitName() because it is more meaningful
+  - rehauled the string rendition of absolutes
+  - introduced short versions for permissions
+
+===== 21-25.08.2012 source organization; system and communicator modifications (andreiolaru) =====
+
+  - Created the base.util package, featuring Rval and Config, and also featuring the QuickSet, currently unused.
+  - modified how the system is started -> it will be started at construction time (since it it configured beforehand through the Config)
+  - introduced command execution (incomplete)
+  - configured logs for Absolute and Soda (not working correctly yet)
+
+===== 17.08.2012 logging fixes (andreiolaru) =====
+
+  - fixes on information files.
+  - comments and small changes on the logging structure.
+  - move to Log4J for logging. Offers better features (e.g. pattern output)
+   
+
+===== 01-02.08.2012 structure, warnings, fixes (andreiolaru) =====
+
+  - Moved atriumL project to its own directory.
+  - improved logging structure.
+  - adapted files to the new logging structure
+  - removed all warnings and errors.
+  - Fixed some project settings
+  
+
+===== 31.07.2012 first commits (andreiolaru) =====
+
+  - added information files.
