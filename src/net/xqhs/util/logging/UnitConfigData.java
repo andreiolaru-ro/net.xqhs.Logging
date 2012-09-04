@@ -1,5 +1,6 @@
 package net.xqhs.util.logging;
 
+import net.xqhs.util.config.Config;
 import net.xqhs.util.logging.Log.Level;
 import net.xqhs.util.logging.Log.LoggerType;
 import net.xqhs.util.logging.Logging.DisplayEntity;
