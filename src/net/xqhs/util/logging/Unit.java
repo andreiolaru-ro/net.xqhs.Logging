@@ -8,6 +8,8 @@ import net.xqhs.util.logging.Log.Level;
  * <p>
  * It is characterized by the unitName, which also gives the name of (and helps refer) the log.
  * <p>
+ * Although not abstract, the Unit should not be used as a member of a class, as no logging functions are available. This purpose is fulfilled by {@link UnitComponent}.
+ * <p>
  * On construction, the name can be the <code>DEFAULT_UNIT_NAME</code>, in which case the class name is used;
  * <code>null</code>, in which case a log is not created; or another name that should be unique across the JVM.
  * <p>
