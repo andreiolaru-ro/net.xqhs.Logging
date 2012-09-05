@@ -22,18 +22,18 @@ import net.xqhs.util.logging.Log.Level;
  */
 public class Unit
 {
-	public final static String	DEFAULT_UNIT_NAME	= "theDefaulUnitName";
-	public final static Level	DEFAULT_LEVEL		= Level.ALL;
+	public final static String DEFAULT_UNIT_NAME = "theDefaulUnitName";
+	public final static Level  DEFAULT_LEVEL	 = Level.ALL;
 	
 	/**
 	 * The configuration of the Unit.
 	 */
-	protected UnitConfigData	config				= null;
+	protected UnitConfigData   config			= null;
 	
 	/**
 	 * The {@link Log} that will be used for logging.
 	 */
-	Log							log					= null;
+	Log						log			   = null;
 	
 	/**
 	 * This member offers a simpler way to give the default unit name, by reinitializing it. It also offers a simple
@@ -79,30 +79,44 @@ public class Unit
 		config = configuration;
 		if(config == null)
 			config = new UnitConfigData();
-		String className = (config.classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName());
+		
 		if(config.unitName == null && getDefaultUnitName() != DEFAULT_UNIT_NAME)
 		{
 			config.setName(getDefaultUnitName());
 			config.setLevel(DEFAULT_LEVEL);
 		}
 		if(config.unitName == DEFAULT_UNIT_NAME)
-			config.setName(className);
+			config.setName((config.classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName()));
 		config.lock(this);
 		
 		if(config.unitName != null)
 		{
-			String name = config.unitName;
-			if(config.addClassName)
-			{
-				if(config.classNamePostfix)
-					name = name + className;
-				else
-					name = className + name;
-			}
-			log = Logging.getLogger(name, config.linkData.parentLogName, config.display, config.reporter, config.ensureNew, config.loggerWrapperType);
+			log = Logging.getLogger(makeLogName(), config.linkData.parentLogName, config.display, config.reporter,
+					config.ensureNew, config.loggerWrapperType);
 			if(config.level != null)
 				log.setLevel(config.level);
 		}
+	}
+	
+	/**
+	 * Produces the actual name of the log, based on the unit name.
+	 * <p>
+	 * This only differs from the unit name if <code>config.addClassName</code> is specified.
+	 * 
+	 * @return the name of the log.
+	 */
+	private String makeLogName()
+	{
+		String className = (config.classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName());
+		String name = config.unitName;
+		if(config.addClassName)
+		{
+			if(config.classNamePostfix)
+				name = name + className;
+			else
+				name = className + name;
+		}
+		return name;
 	}
 	
 	/**
@@ -126,7 +140,7 @@ public class Unit
 	{
 		if(log != null && config.unitName != null)
 		{
-			Logging.exitLogger(config.unitName);
+			Logging.exitLogger(makeLogName());
 			log = null;
 		}
 	}

@@ -3,6 +3,15 @@
 // This file should be in DokuWiki syntax [[http://www.dokuwiki.org/syntax]] //
 // exception: in the file use -- and -/ instead of <del> and </del> for strikethroughs
 
+
+===== 05.09.2012 making logging an independent project (andreiolaru) =====
+
+  - fixed a bug in Unit (exception at log exit if addClassName was used).
+
+
+
+===== previous commits in the aTrium project (before 04.09.2012) =====
+
 ===== 27.08.2012 Work in Absolute and Unit; fixes and doc (andreiolaru) =====
 
   - fixes to additional element generation (untested)
