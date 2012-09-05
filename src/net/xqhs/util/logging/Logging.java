@@ -8,9 +8,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.Log.Level;
 import net.xqhs.util.logging.Log.LoggerType;
+import net.xqhs.util.logging.LogDebug.LogDebugItem;
 
 /**
  * Implements configuring entity and manager for logs. The idea is to have standard logs and wrappers, but with some
@@ -209,7 +209,7 @@ public class Logging
 			throw new IllegalArgumentException("log name cannot be null. Use unit.DEFAULT_UNIT_NAME for the default name.");
 		
 		if(masterLog.log != null)
-			masterLog.log.dbg(DebugItem.D_LOG_MANAGEMENT, "required: [" + name + "]" + (ensureNew ? "[new]" : "") + "; existing: [" + logs.size() + "]: [" + logs + "]");
+			masterLog.log.dbg(LogDebugItem.D_LOG_MANAGEMENT, "required: [" + name + "]" + (ensureNew ? "[new]" : "") + "; existing: [" + logs.size() + "]: [" + logs + "]");
 		
 		Logging thelog = new Logging(name, loggerType, display, reporter);
 		Logging alreadyPresent = null;

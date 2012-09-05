@@ -3,6 +3,7 @@ package net.xqhs.util.logging;
 import java.io.OutputStream;
 
 import net.xqhs.util.logging.Debug.DebugItem;
+import net.xqhs.util.logging.Debug.LocalDebugItem;
 
 
 /**
@@ -177,11 +178,11 @@ public abstract class Log
 	}
 	
 	/**
-	 * This displays a log message (with the level <code>TRACE</code>) only if the specified {@link DebugItem} is
+	 * This displays a log message (with the level <code>TRACE</code>) only if the specified {@link LocalDebugItem} is
 	 * activated.
 	 * 
 	 * @param debug
-	 *            : the {@link DebugItem}
+	 *            : the {@link LocalDebugItem}
 	 * @param message
 	 *            : the log message
 	 */

@@ -1,35 +1,41 @@
 package net.xqhs.util.logging;
 
 /**
- * Class containing the different debug items that can be activated or deactivated by editing this class. Works together
+ * Class containing different debug items that can be activated or deactivated by editing this class. Works together
  * with function <code>dbg()</code> in {@link Log}.
+ * <p>
+ * For documentation purposes, classes containing {@link LocalDebugItem} enums should extend the {@link Debug} class.
+ * <p>
+ * Each project should contain its own class extending {@link Debug}, holding an enum the implements {@link DebugItem},
+ * with a similar implementation to this one.
  * 
  * @author Andrei Olaru
  */
 public class Debug
 {
-	public enum DebugItem {
+	public interface DebugItem
+	{
+		public boolean toBool();
+	}
+	
+	public enum LocalDebugItem implements DebugItem {
 		
 		/**
 		 * Dummy debug item.
 		 */
 		D_D(false),
 		
-		/**
-		 * tracing of log management.
-		 */
-		D_LOG_MANAGEMENT(false),
-		
 		;
 		
-		boolean	isset;
+		boolean isset;
 		
-		private DebugItem(boolean set)
+		private LocalDebugItem(boolean set)
 		{
 			isset = set;
 		}
 		
-		protected boolean toBool()
+		@Override
+		public boolean toBool()
 		{
 			return isset;
 		}

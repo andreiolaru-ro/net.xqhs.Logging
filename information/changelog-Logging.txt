@@ -9,6 +9,7 @@
   - fixed a bug in Unit (exception at log exit if addClassName was used).
   - created the UnitComponent class.
   - created tools to build this project as a JAR and generate javadoc (not tested)
+  - implemented extending the DebugItem enums.
 
 
 ===== previous commits in the aTrium project (before 04.09.2012) =====
