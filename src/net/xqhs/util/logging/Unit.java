@@ -1,6 +1,7 @@
 package net.xqhs.util.logging;
 
-import net.xqhs.util.logging.Debug.LocalDebugItem;
+import net.xqhs.util.config.Config;
+import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.Log.Level;
 
 /**
@@ -227,11 +228,11 @@ public class Unit
 	 * Post a debug message message. See {@link Log}.
 	 * 
 	 * @param debug
-	 *            : the {@link LocalDebugItem} to which this message belongs.
+	 *            : the {@link DebugItem} to which this message belongs.
 	 * @param message
 	 *            : the message to display
 	 */
-	protected void dbg(LocalDebugItem debug, String message)
+	protected void dbg(DebugItem debug, String message)
 	{
 		if(log != null)
 			log.dbg(debug, message);

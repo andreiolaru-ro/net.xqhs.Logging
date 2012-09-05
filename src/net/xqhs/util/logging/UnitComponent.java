@@ -3,7 +3,7 @@
  */
 package net.xqhs.util.logging;
 
-import net.xqhs.util.logging.Debug.LocalDebugItem;
+import net.xqhs.util.logging.Debug.DebugItem;
 
 /**
  * A class that extends {@link Unit} and exposes the logging methods. See {@link Unit} for details.
@@ -57,7 +57,7 @@ public final class UnitComponent extends Unit
 	}
 	
 	@Override
-	public void dbg(LocalDebugItem debug, String message)
+	public void dbg(DebugItem debug, String message)
 	{
 		super.dbg(debug, message);
 	}
