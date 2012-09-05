@@ -1,5 +1,5 @@
 
-====== issues bugs comments ======
+====== issues bugs comments for the Log util ======
 
 // This file should be in DokuWiki syntax [[http://www.dokuwiki.org/syntax]] //
 // exception: in the file use -- and -/ instead of <del> and </del> for strikethroughs
@@ -24,6 +24,8 @@ In this file:
 2. the content to be delivered to the display and reporting entities (i.e. the logOutput members) should be assembled using something better
  than string concatenation. Also, there should an option to skip assembling that output if it will never be needed.
 3. Should maybe revert to the situation where parent classes have different log signatures than children.
+4. Build an example
+5. Implement Unit updating.
 
 == solved
 1. --Logging should have a log of its own, configured by static function (with a UnitConfigData)-/ -> solved with the masterLog

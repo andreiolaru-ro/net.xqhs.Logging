@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="package-docs" >
+
+    <target name="javadoc" >
+
+        <javadoc
+            access="private"
+            author="true"
+            classpath="../Config/output/Config.jar;lib/log4j-1.2.16.jar"
+            destdir="../doc"
+            nodeprecated="false"
+            nodeprecatedlist="false"
+            noindex="false"
+            nonavbar="false"
+            notree="false"
+            packagenames="net.xqhs.util.logging"
+            source="1.7"
+            sourcepath="../src"
+            splitindex="true"
+            use="true"
+            version="true" />
+    </target>
+
+    <target
+        name="package-docs"
+        depends="javadoc"
+        description="build javadoc jar" >
+
+        <jar
+            basedir="../doc"
+            compress="true"
+            destfile="Logging-javadoc.jar" />
+    </target>
+
+</project>

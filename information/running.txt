@@ -1,1 +1,9 @@
-====== running ======
+====== running the Log util  ======
+
+Building the Jar:
+  - Ant-run output/javadoc.xml
+  - right click on output/Log.jardesc and "Create JAR"
+  - the jar will contain classes, sources, and doc (in the "doc") path.
+  
+Running:
+  - just extend the Unit class and see the doc.
