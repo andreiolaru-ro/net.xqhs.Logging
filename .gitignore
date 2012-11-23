@@ -1,4 +1,3 @@
 /bin/
-/doc/
-/output/Log.jar
-/output/Log-javadoc.jar
+/doc*/
+/output/Logging.jar

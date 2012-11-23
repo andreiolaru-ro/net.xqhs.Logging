@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project name="Log" default="complete-export" basedir="../">
+<project name="Logging" default="complete-export" basedir="../">
 
+	<property name="packages" value="net.xqhs.util.logging" />
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="doc-access-level" value="private" />
-	<property name="packages" value="net.xqhs.util.config" />
 	<property name="java-version" value="1.7" />
 
+
+	<property name="libs.dir" location="lib" />
+	<path id="build.classpath">
+		<fileset dir="${libs.dir}"
+		         includes="**/*.jar"
+		         erroronmissingdir="false"
+		/>
+	</path>
 
 	<target name="javadoc">
 		<javadoc access="${doc-access-level}"
 		         author="true"
 		         classpath="."
-		         destdir="doc"
+		         classpathref="build.classpath"
+		         destdir="doc-${project-name}"
 		         nodeprecated="false"
 		         nodeprecatedlist="false"
 		         noindex="false"
@@ -29,9 +38,8 @@
 	<target name="pack">
 		<jar destfile="output/${project-name}.jar">
 			<fileset dir="bin" includes="net/" />
-			<fileset dir="." includes="src/,doc/" />
-			<fileset dir="information" />
-			<fileset dir="." includes="lib/" />
+			<fileset dir="." includes="src/,doc-${project-name}/,info-${project-name}/" />
+			<zipgroupfileset dir="." includes="lib/" />
 		</jar>
 	</target>
 

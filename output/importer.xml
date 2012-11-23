@@ -9,9 +9,9 @@
 	<property name="import-directory" value="." />
 
 	<!-- the target for the current project -->
-	<target name="Log">
-		<copy file="../${import-directory}/Log/output/Log.jar" todir="lib/" />
+	<target name="Logging">
+		<copy file="../${import-directory}/Logging/output/Logging.jar" todir="lib/" />
 	</target>
 
-	<target name="import" depends="Log" />
+	<target name="import" depends="Logging" />
 </project>
