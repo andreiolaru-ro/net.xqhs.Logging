@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!-- place this in the root of the importing project -->
+<!-- if you use multiple imports, copy the target and add it to the dependencies of the default target -->
+
+<project default="import">
+
+	<!-- the directory where the project is, relative to the parent of the current project -->
+	<property name="import-directory" value="." />
+
+	<!-- the target for the current project -->
+	<target name="Log">
+		<copy file="../${import-directory}/Log/output/Log.jar" todir="lib/" />
+	</target>
+
+	<target name="import" depends="Log" />
+</project>

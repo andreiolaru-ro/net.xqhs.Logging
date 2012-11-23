@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="Log" default="complete-export" basedir="../">
+
+	<property name="project-name" value="${ant.project.name}" />
+	<property name="doc-access-level" value="private" />
+	<property name="packages" value="net.xqhs.util.config" />
+	<property name="java-version" value="1.7" />
+
+
+	<target name="javadoc">
+		<javadoc access="${doc-access-level}"
+		         author="true"
+		         classpath="."
+		         destdir="doc"
+		         nodeprecated="false"
+		         nodeprecatedlist="false"
+		         noindex="false"
+		         nonavbar="false"
+		         notree="false"
+		         packagenames="${packages}"
+		         source="${java-version}"
+		         sourcepath="src"
+		         splitindex="false"
+		         use="true"
+		         version="true"
+		/>
+	</target>
+
+	<target name="pack">
+		<jar destfile="output/${project-name}.jar">
+			<fileset dir="bin" includes="net/" />
+			<fileset dir="." includes="src/,doc/" />
+			<fileset dir="information" />
+			<fileset dir="." includes="lib/" />
+		</jar>
+	</target>
+
+	<target name="complete-export" depends="javadoc,pack" />
+
+</project>

@@ -4,6 +4,13 @@
 // exception: in the file use -- and -/ instead of <del> and </del> for strikethroughs
 
 
+
+===== 23.11.2012 exporting/importing (andreiolaru) =====
+
+  - created the new export and import scripts
+
+
+
 ===== 05.09.2012 making logging an independent project (andreiolaru) =====
 
   - fixed a bug in Unit (exception at log exit if addClassName was used).
@@ -55,3 +62,8 @@
 ===== 31.07.2012 first commits (andreiolaru) =====
 
   - added information files.
+  
+  
+====== templates ======
+
+===== ..2012 - (andreiolaru) =====

@@ -12,6 +12,7 @@ In this file:
 
 ===== Bugs - things that are expected to work and don't work as expected
 
+1. Config is no visible when the Logging jar is copied and imported.
 
 == solved
 
