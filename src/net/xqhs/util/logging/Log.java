@@ -4,7 +4,6 @@ import java.io.OutputStream;
 
 import net.xqhs.util.logging.Debug.DebugItem;
 
-
 /**
  * Use this abstract class to implement any [wrapper of a] logging structure that is returned by {@link Logging}.
  * <p>
@@ -37,7 +36,25 @@ public abstract class Log
 	 * 
 	 */
 	public static enum LoggerType {
-		JAVA, LOG4J
+		LOG4J("tatami.pc.util.logging.Log4JWrapper"),
+		
+		JADE("tatami.core.util.logging.JadeLogWrapper"),
+		
+		JAVA("tatami.core.util.logging.JavaLogWrapper")
+		
+		;
+		
+		String	className;
+		
+		private LoggerType(String className)
+		{
+			this.className = className;
+		}
+		
+		public String getClassName()
+		{
+			return className;
+		}
 	}
 	
 	/**

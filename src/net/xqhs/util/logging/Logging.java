@@ -11,6 +11,8 @@ import java.util.Vector;
 import net.xqhs.util.logging.Log.Level;
 import net.xqhs.util.logging.Log.LoggerType;
 import net.xqhs.util.logging.LogDebug.LogDebugItem;
+import net.xqhs.util.logging.wrappers.JavaLogWrapper;
+import net.xqhs.util.logging.wrappers.Log4JWrapper;
 
 /**
  * Implements configuring entity and manager for logs. The idea is to have standard logs and wrappers, but with some

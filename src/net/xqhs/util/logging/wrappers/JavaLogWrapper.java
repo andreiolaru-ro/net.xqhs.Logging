@@ -1,9 +1,12 @@
-package net.xqhs.util.logging;
+package net.xqhs.util.logging.wrappers;
 
 import java.io.OutputStream;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
+
+import net.xqhs.util.logging.Log;
+import net.xqhs.util.logging.Log.Level;
 
 /**
  * A {@link Log} wrapper of Java's {@link Logger}.
