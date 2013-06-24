@@ -1,15 +1,20 @@
 package net.xqhs.util.logging;
 
 import net.xqhs.util.config.Config;
+import net.xqhs.util.config.Config.ConfigLockedException;
 import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.Log.Level;
+import net.xqhs.util.logging.Log.LoggerType;
+import net.xqhs.util.logging.Logging.DisplayEntity;
+import net.xqhs.util.logging.Logging.ReportingEntity;
 
 /**
  * The Unit class should be extended by any class using a log obtained from {@link Logging}.
  * <p>
  * It is characterized by the unitName, which also gives the name of (and helps refer) the log.
  * <p>
- * Although not abstract, the Unit should not be used as a member of a class, as no logging functions are available. This purpose is fulfilled by {@link UnitComponent}.
+ * Although not abstract, the Unit should not be used as a member of a class, as no logging functions are available.
+ * This purpose is fulfilled by {@link UnitComponent}.
  * <p>
  * On construction, the name can be the <code>DEFAULT_UNIT_NAME</code>, in which case the class name is used;
  * <code>null</code>, in which case a log is not created; or another name that should be unique across the JVM.
@@ -23,27 +28,49 @@ import net.xqhs.util.logging.Log.Level;
  * @author Andrei Olaru
  * 
  */
-public class Unit
+public class Unit extends Config
 {
-	public final static String DEFAULT_UNIT_NAME = "theDefaulUnitName";
-	public final static Level  DEFAULT_LEVEL	 = Level.ALL;
+	public final static String	DEFAULT_UNIT_NAME	= "theDefaulUnitName";
+	public final static Level	DEFAULT_LEVEL		= Level.ALL;
 	
 	/**
-	 * The configuration of the Unit.
+	 * The name of the {@link Unit}. See {@link Unit} for details.
 	 */
-	protected UnitConfigData   config			= null;
+	String						unitName			= null;
+	
+	String						logName				= null;
+	
+	/**
+	 * If <code>true</code>, then if another log exists with the same name, an error will be produced. If
+	 * <code>false</code> and another log with the same name exists, that log will be used.
+	 */
+	boolean						ensureNew			= false;
+	
+	Level						level				= null;
+	
+	DisplayEntity				display				= null;
+	ReportingEntity				reporter			= null;
+	
+	LoggerType					loggerWrapperType	= null;
+	
+	UnitLinkData				linkData			= new UnitLinkData();
 	
 	/**
 	 * The {@link Log} that will be used for logging.
 	 */
-	Log						log			   = null;
+	Log							log					= null;
 	
 	/**
+	 * This method is meant to be overridden in inheriting classes, so as to give the default name for units of that
+	 * type. It is meant to not be static, but the particular implementation in {@link Unit} is not dynamic.
+	 * <p>
 	 * This member offers a simpler way to give the default unit name, by reinitializing it. It also offers a simple
 	 * switch to switch the log level to the default level.
 	 * <p>
 	 * WARNING: making this dynamic (return different values at different times) is useless; the method will be called
 	 * <b>only</b> when the unit is constructed and the name returned will remain set.
+	 * 
+	 * @return the default unit name for an instance of this class
 	 */
 	@SuppressWarnings("static-method")
 	protected String getDefaultUnitName()
@@ -52,15 +79,27 @@ public class Unit
 	}
 	
 	/**
-	 * Constructs a new {@link Unit}, using a default {@link UnitConfigData} instance. It will not have a name.
+	 * Constructs a new {@link Unit}.
 	 */
 	public Unit()
 	{
-		this(new UnitConfigData());
+		super();
+	}
+	
+	@Override
+	public void locked()
+	{
+		try
+		{
+			super.locked();
+		} catch(ConfigLockedException e)
+		{
+			le(e.toString());
+		}
 	}
 	
 	/**
-	 * Constructs a {@link Unit} according to the given configuration.
+	 * Constructs a {@link Unit} according to the previously given parameters.
 	 * <p>
 	 * If the configured name is <code>null</code>, but the instance overrides the <code>getDefaultUnitName()</code>
 	 * method, then the value returned by that method will be used.
@@ -73,32 +112,24 @@ public class Unit
 	 * In all the special cases above, the name in the configuration will be modified to the new value.
 	 * <p>
 	 * See {@link UnitConfigData} for other settings that can be used.
-	 * 
-	 * @param configuration
-	 *            : the configuration.
 	 */
-	public Unit(UnitConfigData configuration)
+	@Override
+	public Unit lock()
 	{
-		config = configuration;
-		if(config == null)
-			config = new UnitConfigData();
+		if(unitName == null || logName == null)
+			setUnitName(unitName);
 		
-		if(config.unitName == null && getDefaultUnitName() != DEFAULT_UNIT_NAME)
-		{
-			config.setName(getDefaultUnitName());
-			config.setLevel(DEFAULT_LEVEL);
-		}
-		if(config.unitName == DEFAULT_UNIT_NAME)
-			config.setName((config.classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName()));
-		config.lock(this);
+		super.lock();
 		
-		if(config.unitName != null)
+		if(unitName != null && logName != null)
 		{
-			log = Logging.getLogger(makeLogName(), config.linkData.parentLogName, config.display, config.reporter,
-					config.ensureNew, config.loggerWrapperType);
-			if(config.level != null)
-				log.setLevel(config.level);
+			log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew, loggerWrapperType);
+			if(level != null)
+				log.setLevel(level);
+			// FIXME: level setting actually happens after the new log logging message
 		}
+		
+		return this;
 	}
 	
 	/**
@@ -108,18 +139,132 @@ public class Unit
 	 * 
 	 * @return the name of the log.
 	 */
-	private String makeLogName()
+	private String makeLogName(String name, boolean addClassName, boolean postfix, boolean useLongClassName)
 	{
-		String className = (config.classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName());
-		String name = config.unitName;
-		if(config.addClassName)
+		String className = makeClassName(useLongClassName);
+		if(addClassName)
 		{
-			if(config.classNamePostfix)
+			if(postfix)
 				name = name + className;
 			else
 				name = className + name;
 		}
 		return name;
+	}
+	
+	private String makeClassName(boolean classNameLong)
+	{
+		return (classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName());
+	}
+	
+	/**
+	 * Sets the name of the unit (and therefore of the log). See {@link Unit} for details on naming.
+	 * 
+	 * @param name
+	 *            - the desired name of the unit
+	 * @return the instance itself
+	 */
+	public Unit setUnitName(String name)
+	{
+		return setUnitName(name, false, false, false);
+	}
+	
+	/**
+	 * Sets the name of the unit (and therefore of the log). See {@link Unit} for details on naming.
+	 * <p>
+	 * In this version of the method, the name of the class will be present in the name of this log, also according to
+	 * the other parameters.
+	 * 
+	 * @param name
+	 *            - the desired name of the unit
+	 * @param postfix
+	 *            - if <code>true</code>, the name of the class will be concatenated after the name of the unit;
+	 *            otherwise, before
+	 * @param useLongClassName
+	 *            - if <code>true</code>, the complete name of the class will be used (including the package).
+	 *            Otherwise, only the name obtained by <code>Class.getSimpleName()</code> is used.
+	 * @return the instance itself
+	 */
+	public Unit setUnitName(String name, boolean postfix, boolean useLongClassName)
+	{
+		return setUnitName(name, true, postfix, useLongClassName);
+	}
+	
+	/**
+	 * Aggregates parameters from the two other version of the method.
+	 * 
+	 * @param name
+	 * @param addClassName
+	 * @param postfix
+	 * @param useLongClassName
+	 * @return
+	 */
+	private Unit setUnitName(String name, boolean addClassName, boolean postfix, boolean useLongClassName)
+	{
+		locked();
+		
+		unitName = name; // special cases for the unit name (default unit name) below
+		
+		if(unitName == null && getDefaultUnitName() != DEFAULT_UNIT_NAME)
+		{// the inheriting class has overridden the getDefaultUnitName() method
+			unitName = getDefaultUnitName(); // this works around the setter, which now has been locked
+			setLogLevel(DEFAULT_LEVEL);
+		}
+		
+		if(unitName == DEFAULT_UNIT_NAME)
+			unitName = makeClassName(useLongClassName);
+		
+		logName = makeLogName(name, addClassName, postfix, useLongClassName);
+		
+		return this;
+	}
+	
+	/**
+	 * If called, then if another log exists with the same name, an error will be produced. Otherwise, if another log
+	 * with the same name exists, that log will be used.
+	 */
+	public Unit setLogEnsureNew()
+	{
+		locked();
+		ensureNew = true;
+		return this;
+	}
+	
+	public Unit setLoggingLink(String parentLogName)
+	{
+		return setLink(new UnitLinkData().setparentLogName(parentLogName));
+	}
+	
+	public Unit setLogType(LoggerType loggerType)
+	{
+		locked();
+		this.loggerWrapperType = loggerType;
+		return this;
+	}
+	
+	public Unit setLink(UnitLinkData unitLinkData)
+	{
+		locked();
+		this.linkData = unitLinkData;
+		return this;
+	}
+	
+	public Unit setLogDisplay(DisplayEntity logDisplay)
+	{
+		this.display = logDisplay;
+		return this;
+	}
+	
+	public Unit setLogReporter(ReportingEntity reportingEntity)
+	{
+		this.reporter = reportingEntity;
+		return this;
+	}
+	
+	public Unit setLogLevel(Level logLevel)
+	{
+		this.level = logLevel;
+		return this;
 	}
 	
 	/**
@@ -130,7 +275,7 @@ public class Unit
 	 */
 	protected String getUnitName()
 	{
-		return config.unitName;
+		return unitName;
 	}
 	
 	/**
@@ -141,9 +286,9 @@ public class Unit
 	 */
 	protected void doExit()
 	{
-		if(log != null && config.unitName != null)
+		if(log != null && unitName != null && logName != null)
 		{
-			Logging.exitLogger(makeLogName());
+			Logging.exitLogger(logName);
 			log = null;
 		}
 	}
@@ -156,6 +301,7 @@ public class Unit
 	 */
 	protected void le(String message)
 	{
+		ensureLocked();
 		if(log != null)
 			log.le(message);
 	}
@@ -168,6 +314,7 @@ public class Unit
 	 */
 	protected void lw(String message)
 	{
+		ensureLocked();
 		if(log != null)
 			log.lw(message);
 	}
@@ -180,6 +327,7 @@ public class Unit
 	 */
 	protected void li(String message)
 	{
+		ensureLocked();
 		if(log != null)
 			log.li(message);
 	}
@@ -192,6 +340,7 @@ public class Unit
 	 */
 	protected void lf(String message)
 	{
+		ensureLocked();
 		if(log != null)
 			log.lf(message);
 	}
@@ -204,6 +353,7 @@ public class Unit
 	 */
 	protected Object lr(Object ret)
 	{
+		ensureLocked();
 		if(log != null)
 			return log.lr(ret);
 		return ret;
@@ -219,9 +369,10 @@ public class Unit
 	 */
 	protected Object lr(Object ret, String message)
 	{
+		ensureLocked();
 		if(log != null)
 			return log.lr(ret, message);
-		return null;
+		return ret;
 	}
 	
 	/**
@@ -234,6 +385,7 @@ public class Unit
 	 */
 	protected void dbg(DebugItem debug, String message)
 	{
+		ensureLocked();
 		if(log != null)
 			log.dbg(debug, message);
 	}

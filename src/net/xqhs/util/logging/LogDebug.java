@@ -7,7 +7,7 @@ public class LogDebug extends Debug
 		/**
 		 * tracing of log management.
 		 */
-		D_LOG_MANAGEMENT(false),
+		D_LOG_MANAGEMENT(true),
 		
 		;
 		

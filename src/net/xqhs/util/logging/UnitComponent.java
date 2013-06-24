@@ -15,11 +15,6 @@ import net.xqhs.util.logging.Debug.DebugItem;
  */
 public final class UnitComponent extends Unit
 {
-	public UnitComponent(UnitConfigData config)
-	{
-		super(config);
-	}
-	
 	@Override
 	public void le(String message)
 	{

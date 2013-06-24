@@ -1,6 +1,7 @@
 package net.xqhs.util.logging;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class Logging
 	
 	private static LoggerType				defaultLoggerWrapper	= LoggerType.LOG4J;
 	
-	public static Character					AWESOME_SEPARATOR		= new Character((char)30);
+	public static Character					AWESOME_SEPARATOR		= new Character((char) 30);
 	
 	// // here be the static components of the class, which by being static are unique for the current JVM.
 	
@@ -85,7 +86,8 @@ public class Logging
 	 * 
 	 * All access to the logs field should be synchronized explicitly.
 	 */
-	protected static Map<String, Logging>	logs					= Collections.synchronizedMap(new HashMap<String, Logging>());
+	protected static Map<String, Logging>	logs					= Collections
+																			.synchronizedMap(new HashMap<String, Logging>());
 	/**
 	 * All access to parents should be synchronized. In this source, all accesses take place inside locks on the logs
 	 * field.
@@ -98,8 +100,13 @@ public class Logging
 	 * <p>
 	 * Will automatically start and stop when the first log is created / when the last log exists.
 	 */
-	protected static Unit					masterLog				= null;
-	protected static UnitConfigData			masterLogConfig			= new UnitConfigData();
+	protected static Unit					masterLog				= new Unit() {
+																		@Override
+																		protected String getDefaultUnitName()
+																		{
+																			return masterLogName;
+																		}
+																	};
 	protected static String					masterLogName			= "M-log";
 	
 	// /////////// here be the components of the log
@@ -161,14 +168,14 @@ public class Logging
 	protected int							lastUpdatedSize			= 0;
 	
 	/**
-	 * Configures the <code>masterLog</code> that will be used for log messages regarding global log management.
+	 * Retrieves the <code>masterLog</code> that will be used for log messages regarding global log management, for
+	 * configuring. Its configuration will be locked once the first log is created.
 	 * 
-	 * @param config
-	 *            : the configuration.
+	 * @return the master log
 	 */
-	public static void configureMasterLogging(UnitConfigData config)
+	public static Unit getMasterLogging()
 	{
-		masterLogConfig = config;
+		return masterLog;
 	}
 	
 	/**
@@ -190,28 +197,25 @@ public class Logging
 	 *            : the {@link Log} class to instantiate. If null, one of them is chosen by default.
 	 * @return A new, configured, Logger object.
 	 */
-	public static Log getLogger(String name, String link, DisplayEntity display, ReportingEntity reporter, boolean ensureNew, LoggerType loggerType)
+	public static Log getLogger(String name, String link, DisplayEntity display, ReportingEntity reporter,
+			boolean ensureNew, LoggerType loggerType)
 	{
 		boolean erred = false;
 		int nlogs = -1;
 		
-		if(masterLog == null)
+		if(masterLog.logName == null)
 		{
-			masterLog = new Unit(); // avoid recursion by having a non-null masterLog first.
-			masterLog = new Unit(masterLogConfig) {
-				@Override
-				protected String getDefaultUnitName()
-				{
-					return masterLogName;
-				}
-			};
+			masterLog.logName = ""; // avoid recursion
+			masterLog.lock();
 		}
 		
 		if(name == null)
-			throw new IllegalArgumentException("log name cannot be null. Use unit.DEFAULT_UNIT_NAME for the default name.");
+			throw new IllegalArgumentException(
+					"log name cannot be null. Use unit.DEFAULT_UNIT_NAME for the default name.");
 		
 		if(masterLog.log != null)
-			masterLog.log.dbg(LogDebugItem.D_LOG_MANAGEMENT, "required: [" + name + "]" + (ensureNew ? "[new]" : "") + "; existing: [" + logs.size() + "]: [" + logs + "]");
+			masterLog.log.dbg(LogDebugItem.D_LOG_MANAGEMENT, "required: [" + name + "]" + (ensureNew ? "[new]" : "")
+					+ "; existing: [" + logs.size() + "]: [" + logs + "]");
 		
 		Logging thelog = new Logging(name, loggerType, display, reporter);
 		Logging alreadyPresent = null;
@@ -419,7 +423,8 @@ public class Logging
 		// level, message: for TextArea
 		logger.addDestination("%-5p \t %m%n", logOutput);
 		// date level name message (no new line): for reporting (also, obscure reference)
-		logger.addDestination(AWESOME_SEPARATOR + "%d{HH:mm:ss:SSSS} %-5p [" + logName + "]:\t %m" + AWESOME_SEPARATOR, logOutputStamped);
+		logger.addDestination(AWESOME_SEPARATOR + "%d{HH:mm:ss:SSSS} %-5p [" + logName + "]:\t %m" + AWESOME_SEPARATOR,
+				logOutputStamped);
 		// priority (level), name, message, line break: for console
 		switch(wrapperType)
 		{

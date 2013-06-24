@@ -4,7 +4,6 @@ import net.xqhs.util.logging.Log;
 import net.xqhs.util.logging.Log.Level;
 import net.xqhs.util.logging.Log.LoggerType;
 import net.xqhs.util.logging.Logging;
-import net.xqhs.util.logging.UnitConfigData;
 import net.xqhs.util.logging.UnitComponent;
 
 public class LogTester
@@ -12,8 +11,10 @@ public class LogTester
 	public static void main(String[] args)
 	{
 		String NAME = "log";
-		// non-recommended use
 		
+//		Logging.getMasterLogging().setUnitName(null);
+		
+		// non-recommended use
 		System.out.println("\n\n=================== PART 1 ====================\n\n");
 		
 		Log log1 = Logging.getLogger(NAME);
@@ -27,16 +28,30 @@ public class LogTester
 		
 		Logging.exitLogger(NAME);
 		
+		try
+		{
+			Thread.sleep(500);
+		} catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		
 		System.out.println("\n\n=================== PART 2 ====================\n\n");
 		
-		UnitComponent testUnit = new UnitComponent(new UnitConfigData().setName(NAME).setLevel(Level.WARN)
-				.addClassName(true, true));
+		UnitComponent testUnit = (UnitComponent) new UnitComponent().setUnitName(NAME, true, true).setLogLevel(Level.WARN);
 		
 		testUnit.le("error");
 		testUnit.li("info");
 		testUnit.doExit();
 		
+		try
+		{
+			Thread.sleep(500);
+		} catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		
 		System.out.println("\n\n=================== END ====================\n\n");
 	}
-	
 }
