@@ -242,6 +242,11 @@ public class Unit extends Config
 		return this;
 	}
 	
+	public Unit setLink(String parentLogName)
+	{
+		return setLink(new UnitLinkData().setparentLogName(parentLogName));
+	}
+	
 	public Unit setLink(UnitLinkData unitLinkData)
 	{
 		locked();
