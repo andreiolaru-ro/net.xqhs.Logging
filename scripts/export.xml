@@ -11,8 +11,8 @@
   You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <project name="Logging" default="complete-export" basedir="../">
-
 	<property name="packages" value="net.xqhs.util.logging" />
+	
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="doc-access-level" value="private" />
 	<property name="java-version" value="1.7" />
@@ -43,17 +43,28 @@
 		         splitindex="false"
 		         use="true"
 		         version="true"
-		/>
+		>
+			<header>
+				Copyright (C) 2013 Andrei Olaru under the GNU General Public License. See &lt;a href="http://www.gnu.org/licenses/"&gt;http://www.gnu.org/licenses/&lt;/a&gt;.
+			</header>
+		</javadoc>
 	</target>
 
 	<target name="pack">
-		<jar destfile="output/${project-name}.jar">
+		<jar destfile="deploy/${project-name}.jar">
 			<fileset dir="bin" includes="net/" />
-			<fileset dir="." includes="src/,doc-${project-name}/,info-${project-name}/" />
+			<fileset dir="." includes="src/,doc-${project-name}/,doc-${project-name}-additional/,info-${project-name}/" />
+		</jar>
+		<copy file="lib/Config.jar" todir="deploy/" />
+	</target>
+
+	<target name="fullpack">
+		<jar destfile="deploy/${project-name}-full.jar">
+		    <zipgroupfileset dir="." includes="deploy/${project-name}.jar" />
 			<zipgroupfileset dir="." includes="lib/" />
 		</jar>
 	</target>
-
-	<target name="complete-export" depends="javadoc,pack" />
+	
+	<target name="complete-export" depends="javadoc,pack,fullpack" />
 
 </project>
