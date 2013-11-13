@@ -56,6 +56,7 @@
 			<fileset dir="." includes="src/,doc-${project-name}/,doc-${project-name}-additional/,info-${project-name}/" />
 		</jar>
 		<copy file="lib/Config.jar" todir="deploy/" />
+		<copy file="lib/log4j-1.2.16.jar" todir="deploy/" />
 	</target>
 
 	<target name="fullpack">
