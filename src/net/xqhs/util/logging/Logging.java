@@ -12,7 +12,6 @@
 package net.xqhs.util.logging;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +19,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import net.xqhs.util.logging.Log.Level;
 import net.xqhs.util.logging.Log.LoggerType;
 import net.xqhs.util.logging.LogDebug.LogDebugItem;
+import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.wrappers.JavaLogWrapper;
 import net.xqhs.util.logging.wrappers.Log4JWrapper;
 
@@ -224,8 +223,8 @@ public class Logging
 			throw new IllegalArgumentException(
 					"log name cannot be null. Use unit.DEFAULT_UNIT_NAME for the default name.");
 		
-		if(masterLog.log != null)
-			masterLog.log.dbg(LogDebugItem.D_LOG_MANAGEMENT, "required: [" + name + "]" + (ensureNew ? "[new]" : "")
+		if((masterLog.log != null) && LogDebugItem.D_LOG_MANAGEMENT.toBool())
+			masterLog.log.l(Level.TRACE, "required: [" + name + "]" + (ensureNew ? "[new]" : "")
 					+ "; existing: [" + logs.size() + "]: [" + logs + "]");
 		
 		Logging thelog = new Logging(name, loggerType, display, reporter);
@@ -257,7 +256,7 @@ public class Logging
 			thelog.doexit();
 			thelog = alreadyPresent;
 		}
-		thelog.logger.trace("new log (count now [" + nlogs + "]).");
+		thelog.logger.l(Level.TRACE, "new log (count now [" + nlogs + "]).");
 		return thelog.getLog();
 	}
 	
@@ -376,7 +375,7 @@ public class Logging
 		}
 		if(notpresent || (found == null))
 			throw new IllegalArgumentException("log not present [" + name + "]");
-		found.getLog().trace("log out (logs remaining [" + nlogs + "]).");
+		found.getLog().l(Level.TRACE, "log out (logs remaining [" + nlogs + "]).");
 		for(String logName : toClose)
 			exitLogger(logName, flushFirst);
 		if(flushFirst)
@@ -403,7 +402,7 @@ public class Logging
 			parents.clear();
 		}
 		
-		masterLog.log.info("--------logs cleared-------------");
+		masterLog.log.l(Level.TRACE, "--------logs cleared-------------");
 		masterLog.doExit();
 	}
 	

@@ -14,6 +14,7 @@ package testing;
 import java.io.OutputStream;
 
 import net.xqhs.util.logging.Log;
+import net.xqhs.util.logging.Logger.Level;
 
 public class ConsoleWrapper extends Log
 {
@@ -38,5 +39,4 @@ public class ConsoleWrapper extends Log
 		if(level.compareTo(currentLevel) >= 0)
 			System.out.println("[" + level.toString() + "][" + message + "]");
 	}
-	
 }

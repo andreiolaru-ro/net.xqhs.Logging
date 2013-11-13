@@ -12,10 +12,9 @@
 package net.xqhs.util.logging;
 
 import net.xqhs.util.config.Config;
-import net.xqhs.util.config.Config.ConfigLockedException;
 import net.xqhs.util.logging.Debug.DebugItem;
-import net.xqhs.util.logging.Log.Level;
 import net.xqhs.util.logging.Log.LoggerType;
+import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.Logging.DisplayEntity;
 import net.xqhs.util.logging.Logging.ReportingEntity;
 
@@ -319,7 +318,7 @@ public class Unit extends Config
 	{
 		ensureLocked();
 		if(log != null)
-			log.le(message);
+			log.l(Level.ERROR, message);
 	}
 	
 	/**
@@ -332,7 +331,7 @@ public class Unit extends Config
 	{
 		ensureLocked();
 		if(log != null)
-			log.lw(message);
+			log.l(Level.WARN, message);
 	}
 	
 	/**
@@ -345,7 +344,7 @@ public class Unit extends Config
 	{
 		ensureLocked();
 		if(log != null)
-			log.li(message);
+			log.l(Level.INFO, message);
 	}
 	
 	/**
@@ -358,52 +357,71 @@ public class Unit extends Config
 	{
 		ensureLocked();
 		if(log != null)
-			log.lf(message);
+			log.l(Level.TRACE, message);
 	}
 	
 	/**
-	 * Post a message based on an {@link Object} and return the value. See {@link Log}.
+	 * This method should be used in return statements. It adds a log message just before returning the {@link Object}
+	 * in the argument, displaying the {@link Object}.
 	 * 
 	 * @param ret
-	 *            : the value to return
+	 *            : the {@link Object} to return.
+	 * 
+	 * @return the {@link Object} passed as argument.
 	 */
 	protected Object lr(Object ret)
 	{
-		ensureLocked();
-		if(log != null)
-			return log.lr(ret);
-		return ret;
+		return lr(ret, null);
 	}
 	
 	/**
-	 * Post a message and return an {@link Object}. See {@link Log}.
+	 * This method should be used in return statements. It adds a log message just before returning the {@link Object}
+	 * in the argument.
+	 * <p>
+	 * The {@link Object} in the argument is also put in the log message.
 	 * 
-	 * @param message
-	 *            : the message to display
 	 * @param ret
-	 *            : the value to return
+	 *            : the {@link Object} to return and to display.
+	 * @param message
+	 *            : the message to display beside the {@link Object}.
+	 * 
+	 * @return the {@link Object} passed as argument.
 	 */
 	protected Object lr(Object ret, String message)
 	{
-		ensureLocked();
-		if(log != null)
-			return log.lr(ret, message);
+		lf(ret.toString() + (message != null ? ":[" + message + "]" : ""));
 		return ret;
 	}
 	
 	/**
-	 * Post a debug message message. See {@link Log}.
+	 * This method displays a log message (with the level <code>TRACE</code>) only if the specified {@link DebugItem} is
+	 * activated.
 	 * 
 	 * @param debug
-	 *            : the {@link DebugItem} to which this message belongs.
+	 *            : the {@link DebugItem}
 	 * @param message
-	 *            : the message to display
+	 *            : the log message
 	 */
 	protected void dbg(DebugItem debug, String message)
 	{
-		ensureLocked();
-		if(log != null)
-			log.dbg(debug, message);
+		if(debug.toBool())
+			lf(message);
 	}
 	
+	/**
+	 * Composes a message with an array of {@link Object} instances.
+	 * 
+	 * @param message
+	 *            : the message
+	 * @param objects
+	 *            : the objects
+	 * @return the concatenated string
+	 */
+	protected static String compose(String message, Object[] objects)
+	{
+		String ret = message;
+		for(Object object : objects)
+			ret += "," + object.toString();
+		return ret;
+	}
 }

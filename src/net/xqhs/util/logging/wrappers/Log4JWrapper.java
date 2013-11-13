@@ -15,7 +15,7 @@ package net.xqhs.util.logging.wrappers;
 import java.io.OutputStream;
 
 import net.xqhs.util.logging.Log;
-import net.xqhs.util.logging.Log.Level;
+import net.xqhs.util.logging.Logger.Level;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;

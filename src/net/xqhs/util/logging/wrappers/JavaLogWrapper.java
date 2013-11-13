@@ -17,7 +17,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
 import net.xqhs.util.logging.Log;
-import net.xqhs.util.logging.Log.Level;
+import net.xqhs.util.logging.Logger.Level;
 
 /**
  * A {@link Log} wrapper of Java's {@link Logger}.
