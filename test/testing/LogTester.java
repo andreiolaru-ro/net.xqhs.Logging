@@ -21,6 +21,8 @@ public class LogTester
 {
 	public static void main(String[] args)
 	{
+//		Logging.getMasterLogging().setLogLevel(Level.OFF);
+		
 		String NAME = "log";
 		
 		// Logging.getMasterLogging().setUnitName(null);
@@ -29,7 +31,7 @@ public class LogTester
 		System.out.println("\n\n=================== PART 1 ====================\n\n");
 		
 		Log log1 = Logging.getLogger(NAME);
-		Log log2 = Logging.getLogger(NAME + "-J", NAME, null, null, true, LoggerType.JAVA);
+		Log log2 = Logging.getLogger(NAME + "-J", NAME, null, null, true, LoggerType.JAVA, Level.INFO);
 		log1.setLevel(Level.INFO);
 		
 		log1.l(Level.ERROR, "error");

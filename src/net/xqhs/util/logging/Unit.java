@@ -133,10 +133,8 @@ public class Unit extends Config
 		
 		if(unitName != null && logName != null)
 		{
-			log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew, loggerWrapperType);
-			if(level != null)
-				log.setLevel(level);
-			// FIXME: level setting actually happens after the new log logging message
+			log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew, loggerWrapperType,
+					level);
 		}
 		
 		return this;
@@ -215,7 +213,7 @@ public class Unit extends Config
 		
 		unitName = name; // special cases for the unit name (default unit name) below
 		
-		if(unitName == null && getDefaultUnitName() != DEFAULT_UNIT_NAME)
+		if((unitName == null) && (!DEFAULT_UNIT_NAME.equals(getDefaultUnitName())))
 		{// the inheriting class has overridden the getDefaultUnitName() method
 			unitName = getDefaultUnitName(); // this works around the setter, which now has been locked
 			setLogLevel(DEFAULT_LEVEL);

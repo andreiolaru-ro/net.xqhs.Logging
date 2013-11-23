@@ -102,7 +102,8 @@ public class Logging
 	 * All access to parents should be synchronized. In this source, all accesses take place inside locks on the logs
 	 * field.
 	 */
-	protected static Map<String, String>	parents					= new HashMap<>();
+	@SuppressWarnings("unused")
+	protected static Map<String, String>	parents					= new HashMap<String, String>();
 	
 	/**
 	 * A {@link Unit} or logging messages related to the log management. Can be configured via
@@ -110,14 +111,17 @@ public class Logging
 	 * <p>
 	 * Will automatically start and stop when the first log is created / when the last log exists.
 	 */
-	protected static Unit					masterLog				= new Unit() {
-																		@Override
-																		protected String getDefaultUnitName()
-																		{
-																			return masterLogName;
-																		}
-																	};
+	protected static Unit					masterLog				= null;
 	protected static String					masterLogName			= "M-log";
+	static {
+		masterLog = new Unit() {
+			@Override
+			protected String getDefaultUnitName()
+			{
+				return masterLogName;
+			}
+		};
+	}
 	
 	// /////////// here be the components of the log
 	/**
@@ -208,14 +212,14 @@ public class Logging
 	 * @return A new, configured, Logger object.
 	 */
 	public static Log getLogger(String name, String link, DisplayEntity display, ReportingEntity reporter,
-			boolean ensureNew, LoggerType loggerType)
+			boolean ensureNew, LoggerType loggerType, Level level)
 	{
 		boolean erred = false;
 		int nlogs = -1;
 		
-		if(masterLog.logName == null)
+		if(masterLog.unitName == null)
 		{
-			masterLog.logName = ""; // avoid recursion
+			masterLog.unitName = masterLogName; // avoid recursion
 			masterLog.lock();
 		}
 		
@@ -256,6 +260,8 @@ public class Logging
 			thelog.doexit();
 			thelog = alreadyPresent;
 		}
+		if(level != null)
+			thelog.logger.setLevel(level);
 		thelog.logger.l(Level.TRACE, "new log (count now [" + nlogs + "]).");
 		return thelog.getLog();
 	}
@@ -275,7 +281,7 @@ public class Logging
 	 */
 	public static Log getLogger(String name, String link)
 	{
-		return getLogger(name, link, null, null, false, null);
+		return getLogger(name, link, null, null, false, null, null);
 	}
 	
 	/**
@@ -289,7 +295,7 @@ public class Logging
 	 */
 	public static Log getLogger(String name)
 	{
-		return getLogger(name, null, null, null, false, null);
+		return getLogger(name, null, null, null, false, null, null);
 	}
 	
 	/**
@@ -306,7 +312,7 @@ public class Logging
 	 */
 	public static Log getLogger(String name, DisplayEntity display)
 	{
-		return getLogger(name, null, display, null, false, null);
+		return getLogger(name, null, display, null, false, null, null);
 	}
 	
 	/**
@@ -358,7 +364,8 @@ public class Logging
 		boolean notpresent = false;
 		Logging found = null;
 		int nlogs = -1;
-		Vector<String> toClose = new Vector<>();
+		@SuppressWarnings("unused")
+		Vector<String> toClose = new Vector<String>();
 		synchronized(logs)
 		{
 			if(!logs.containsKey(name))
