@@ -12,7 +12,7 @@
 -->
 <project name="Logging" default="complete-export" basedir="../">
 	<property name="packages" value="net.xqhs.util.logging" />
-	
+
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="doc-access-level" value="private" />
 	<property name="java-version" value="1.7" />
@@ -53,7 +53,9 @@
 	<target name="pack">
 		<jar destfile="deploy/${project-name}.jar">
 			<fileset dir="bin" includes="net/" />
-			<fileset dir="." includes="src/,doc-${project-name}/,doc-${project-name}-additional/,info-${project-name}/" />
+			<fileset dir="."
+			         includes="src/,doc-${project-name}/,doc-${project-name}-additional/,info-${project-name}/"
+			/>
 		</jar>
 		<copy file="lib/Config.jar" todir="deploy/" />
 		<copy file="lib/log4j-1.2.16.jar" todir="deploy/" />
@@ -68,14 +70,22 @@
 			/>
 		</jar>
 	</target>
-	
+
 	<target name="fullpack">
 		<jar destfile="deploy/${project-name}-full.jar">
-		    <zipgroupfileset dir="." includes="deploy/${project-name}.jar" />
+			<zipgroupfileset dir="." includes="deploy/${project-name}.jar" />
 			<zipgroupfileset dir="." includes="lib/" />
 		</jar>
 	</target>
-	
-	<target name="complete-export" depends="javadoc,pack,pack-java6,fullpack" />
+
+	<target name="copy-importer">
+		<copy file="scripts/outside-importer.xml"
+		      tofile="deploy/importer.xml"
+		/>
+	</target>
+
+	<target name="complete-export"
+	        depends="javadoc,pack,pack-java6,fullpack,copy-importer"
+	/>
 
 </project>

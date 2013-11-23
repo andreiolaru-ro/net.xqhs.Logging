@@ -14,22 +14,25 @@
 
 	<property name="src" value="src/" />
 	<property name="build" value="bin-java6/" />
-	<property name="build.sysclasspath" value="ignore" />
-	<path id="cp">
+	<property name="build.sysclasspath" value="first" />
+	<path id="build.classpath">
 		<fileset dir="lib/">
 			<include name="*.jar" />
 			<exclude name="Config.jar" />
 		</fileset>
 		<fileset dir="deploy/java6/">
-			<include name="Config.jar" />
-			<exclude name="*.jar" />
+			<include name="*.jar" />
 		</fileset>
 	</path>
 
 	<target name="build-java6">
-		<javac srcdir="${src}" destdir="${build}" fork="true" target="1.6">
-			<classpath refid="cp" />
-		</javac>
+		<javac srcdir="${src}"
+		       destdir="${build}"
+		       fork="true"
+		       source="1.6"
+		       target="1.6"
+		       classpathref="build.classpath"
+		/>
 	</target>
 
 </project>
