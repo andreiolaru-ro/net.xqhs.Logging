@@ -59,6 +59,16 @@
 		<copy file="lib/log4j-1.2.16.jar" todir="deploy/" />
 	</target>
 
+	<target name="pack-java6">
+		<ant antfile="scripts/build-java6.xml" dir="." />
+		<jar destfile="deploy/java6/${project-name}.jar">
+			<fileset dir="bin-java6" includes="net/" />
+			<fileset dir="."
+			         includes="src/,doc-${project-name}/,info-${project-name}/"
+			/>
+		</jar>
+	</target>
+	
 	<target name="fullpack">
 		<jar destfile="deploy/${project-name}-full.jar">
 		    <zipgroupfileset dir="." includes="deploy/${project-name}.jar" />
@@ -66,6 +76,6 @@
 		</jar>
 	</target>
 	
-	<target name="complete-export" depends="javadoc,pack,fullpack" />
+	<target name="complete-export" depends="javadoc,pack,pack-java6,fullpack" />
 
 </project>
