@@ -69,6 +69,10 @@
 			         includes="src/,doc-${project-name}/,info-${project-name}/"
 			/>
 		</jar>
+		<jar destfile="deploy/java6/${project-name}-full.jar">
+			<zipgroupfileset dir="." includes="deploy/java6/${project-name}.jar" />
+			<zipgroupfileset dir="." includes="lib/" excludes="lib/Config.jar" />
+		</jar>
 	</target>
 
 	<target name="fullpack">

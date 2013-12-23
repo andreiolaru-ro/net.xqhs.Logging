@@ -387,7 +387,7 @@ public class Unit extends Config
 	 */
 	protected Object lr(Object ret, String message)
 	{
-		lf(ret.toString() + (message != null ? ":[" + message + "]" : ""));
+		lf(((ret != null) ? ret.toString() : "null") + (message != null ? ":[" + message + "]" : ""));
 		return ret;
 	}
 	
