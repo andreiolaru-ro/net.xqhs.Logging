@@ -141,31 +141,6 @@ public class Unit extends Config
 	}
 	
 	/**
-	 * Produces the actual name of the log, based on the unit name.
-	 * <p>
-	 * This only differs from the unit name if <code>config.addClassName</code> is specified.
-	 * 
-	 * @return the name of the log.
-	 */
-	private String makeLogName(String name, boolean addClassName, boolean postfix, boolean useLongClassName)
-	{
-		String className = makeClassName(useLongClassName);
-		if(addClassName)
-		{
-			if(postfix)
-				name = name + className;
-			else
-				name = className + name;
-		}
-		return name;
-	}
-	
-	private String makeClassName(boolean classNameLong)
-	{
-		return (classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName());
-	}
-	
-	/**
 	 * Sets the name of the unit (and therefore of the log). See {@link Unit} for details on naming.
 	 * 
 	 * @param name
@@ -227,6 +202,31 @@ public class Unit extends Config
 		return this;
 	}
 	
+	private String makeClassName(boolean classNameLong)
+	{
+		return (classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName());
+	}
+
+	/**
+	 * Produces the actual name of the log, based on the unit name.
+	 * <p>
+	 * This only differs from the unit name if <code>config.addClassName</code> is specified.
+	 * 
+	 * @return the name of the log.
+	 */
+	private String makeLogName(String name, boolean addClassName, boolean postfix, boolean useLongClassName)
+	{
+		String className = makeClassName(useLongClassName);
+		if(addClassName)
+		{
+			if(postfix)
+				name = name + className;
+			else
+				name = className + name;
+		}
+		return name;
+	}
+
 	/**
 	 * If called, then if another log exists with the same name, an error will be produced. Otherwise, if another log
 	 * with the same name exists, that log will be used.
