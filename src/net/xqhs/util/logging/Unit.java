@@ -194,10 +194,10 @@ public class Unit extends Config
 			setLogLevel(DEFAULT_LEVEL);
 		}
 		
-		if(unitName == DEFAULT_UNIT_NAME)
+		if(DEFAULT_UNIT_NAME.equals(unitName))
 			unitName = makeClassName(useLongClassName);
 		
-		logName = makeLogName(name, addClassName, postfix, useLongClassName);
+		logName = makeLogName(unitName, addClassName, postfix, useLongClassName);
 		
 		return this;
 	}
