@@ -13,25 +13,33 @@ package net.xqhs.util.logging;
 
 import net.xqhs.util.config.Config;
 import net.xqhs.util.logging.Debug.DebugItem;
-import net.xqhs.util.logging.Log.LoggerType;
-import net.xqhs.util.logging.Logger.Level;
-import net.xqhs.util.logging.Logging.DisplayEntity;
-import net.xqhs.util.logging.Logging.ReportingEntity;
+import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.logging.LogWrapper;
+import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
+import net.xqhs.util.logging.logging.Logging;
+import net.xqhs.util.logging.logging.Logging.DisplayEntity;
+import net.xqhs.util.logging.logging.Logging.ReportingEntity;
 
 /**
- * The Unit class should be extended by any class using a log obtained from {@link Logging}.
+ * The Unit class should be extended by classes in which logging primitives should be available without calling a
+ * specific instance. I.e. it will be possible to call primitives directly (e.g. <code>le(message);</code>). Logging
+ * primitives will be protected.
  * <p>
- * It is characterized by the unitName, which also gives the name of (and helps refer) the log.
+ * It is characterized by the unitName, which also gives the name of the log. If the configured name is
+ * <code>null</code>, but the instance overrides the <code>getDefaultUnitName()</code> method, then the value returned
+ * by that method will be used. If the name is <code>null</code> and there is no override of
+ * <code>getDefaultUnitName()</code>, no log will be created and the elements in the configuration will be of no effect.
+ * If the name is <code>DEFAULT_UNIT_NAME</code>, the name of the class will be used. In any other case, the given unit
+ * name will be used and the log name will be computed accordingly -- will be the equal to the unit name or, if
+ * {@link #setUnitName(String, boolean, boolean)} is called, the name of the class will be added.
  * <p>
- * Although not abstract, the Unit should not be used as a member of a class, as no logging functions are available.
- * This purpose is fulfilled by {@link UnitComponent}.
+ * Although not abstract, the Unit cannot be used as a member of a class, as no logging functions are available
+ * publicly. This purpose is fulfilled by {@link UnitComponent}.
  * <p>
- * On construction, the name can be the <code>DEFAULT_UNIT_NAME</code>, in which case the class name is used;
- * <code>null</code>, in which case a log is not created; or another name that should be unique across the JVM.
+ * {@link Unit} only offers the reduced ('simple') set of primitives specified by the {@link LoggerSimple} interface. It
+ * does not implement the interface however, as that would require the methods to become public.
  * <p>
- * It is guaranteed that after construction the Unit has a non-null, valid {@link Config}.
- * <p>
- * The unit also serves as access to logging functions offered by the contained {@link Log}.
+ * The class extends {@link Config}, so extending classes can use the features offered by {@link Config}.
  * <p>
  * The sole purpose of the {@link Unit} layer of an instance is to handle logging.
  * 
@@ -40,7 +48,13 @@ import net.xqhs.util.logging.Logging.ReportingEntity;
  */
 public class Unit extends Config
 {
+	/**
+	 * The value that should be used to state that the name of the unit should be computed depending on the class name.
+	 */
 	public final static String	DEFAULT_UNIT_NAME	= "theDefaulUnitName";
+	/**
+	 * The default level for the log, if no other level is set.
+	 */
 	public final static Level	DEFAULT_LEVEL		= Level.ALL;
 	
 	/**
@@ -48,6 +62,9 @@ public class Unit extends Config
 	 */
 	String						unitName			= null;
 	
+	/**
+	 * The name that will be given to the log. See {@link Unit} for details.
+	 */
 	String						logName				= null;
 	
 	/**
@@ -56,19 +73,40 @@ public class Unit extends Config
 	 */
 	boolean						ensureNew			= false;
 	
+	/**
+	 * The current level of the log.
+	 */
 	Level						level				= null;
 	
+	/**
+	 * A {@link DisplayEntity} implementation to which to post logging information.
+	 */
 	DisplayEntity				display				= null;
+	/**
+	 * A {@link ReportingEntity} implementation to which to post logging information.
+	 */
 	ReportingEntity				reporter			= null;
 	
+	/**
+	 * The type of the logging wrapper that will be used.
+	 */
 	LoggerType					loggerWrapperType	= null;
 	
+	/**
+	 * The class of the logging wrapper that will be used (used only if different from the default types specified by
+	 * {@link LoggerType}.
+	 */
+	String						loggerWrapperClass	= null;
+	
+	/**
+	 * Information on linking the behavior of this log to other logs. TODO.
+	 */
 	UnitLinkData				linkData			= new UnitLinkData();
 	
 	/**
-	 * The {@link Log} that will be used for logging.
+	 * The {@link LogWrapper} that will be used for logging.
 	 */
-	Log							log					= null;
+	LogWrapper					log					= null;
 	
 	/**
 	 * This method is meant to be overridden in inheriting classes, so as to give the default name for units of that
@@ -96,8 +134,12 @@ public class Unit extends Config
 		super();
 	}
 	
-	@Override
-	public void locked()
+	/**
+	 * Calls the {@link Config#locked()} method and if an exception is thrown it posts an error message to the log.
+	 * 
+	 * @return <code>true</code> if the configuration was locked, <code>false</code> otherwise.
+	 */
+	public boolean lockedR()
 	{
 		try
 		{
@@ -105,23 +147,14 @@ public class Unit extends Config
 		} catch(ConfigLockedException e)
 		{
 			le(e.toString());
+			return true;
 		}
+		return false;
 	}
 	
 	/**
-	 * Constructs a {@link Unit} according to the previously given parameters.
-	 * <p>
-	 * If the configured name is <code>null</code>, but the instance overrides the <code>getDefaultUnitName()</code>
-	 * method, then the value returned by that method will be used.
-	 * <p>
-	 * If the name is <code>null</code> and there is no override of <code>getDefaultUnitName()</code>, no log will be
-	 * created and the elements in the configuration will be of no effect.
-	 * <p>
-	 * If the name is <code>DEFAULT_UNIT_NAME</code>, the name of the class will be used.
-	 * <p>
-	 * In all the special cases above, the name in the configuration will be modified to the new value.
-	 * <p>
-	 * See {@link UnitConfigData} for other settings that can be used.
+	 * Constructs a {@link Unit} according to the previously given parameters. More precisely, creates the log,
+	 * according to the current configuration.
 	 */
 	@Override
 	public Unit lock()
@@ -132,10 +165,14 @@ public class Unit extends Config
 		super.lock();
 		
 		if(unitName != null && logName != null)
-		{
-			log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew, loggerWrapperType,
-					level);
-		}
+			try
+			{
+				log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew,
+						loggerWrapperClass, level);
+			} catch(ClassNotFoundException e)
+			{
+				throw new IllegalArgumentException("Failed to instantiate logging wrapper class.", e);
+			}
 		
 		return this;
 	}
@@ -174,17 +211,26 @@ public class Unit extends Config
 	}
 	
 	/**
-	 * Aggregates parameters from the two other version of the method.
+	 * Aggregates parameters from the two other version of the method. See {@link Unit} and the calling methods for
+	 * details.
 	 * 
 	 * @param name
+	 *            - the configured name of the unit.
 	 * @param addClassName
+	 *            - if <code>true</code>, the name of this class will be added to the name of the log.
 	 * @param postfix
+	 *            - if <code>true</code>, the name of the class will be added after the name of the unit; if
+	 *            <code>false</code>, it will be added before.
 	 * @param useLongClassName
-	 * @return
+	 *            - if <code>true</code>, the canonical name of the class will be used (returned by
+	 *            <code>getCanonicalName()</code> ; if false, the simple name (returned by <code>getSimpleName()</code>
+	 *            ).
+	 * @return the instance itself.
 	 */
 	private Unit setUnitName(String name, boolean addClassName, boolean postfix, boolean useLongClassName)
 	{
-		locked();
+		if(lockedR())
+			return this;
 		
 		unitName = name; // special cases for the unit name (default unit name) below
 		
@@ -195,88 +241,146 @@ public class Unit extends Config
 		}
 		
 		if(DEFAULT_UNIT_NAME.equals(unitName))
+		{
 			unitName = makeClassName(useLongClassName);
-		
-		logName = makeLogName(unitName, addClassName, postfix, useLongClassName);
+			logName = unitName;
+		}
+		else if(addClassName)
+			if(postfix)
+				logName = unitName + makeClassName(useLongClassName);
+			else
+				logName = makeClassName(useLongClassName) + unitName;
+		else
+			logName = unitName;
 		
 		return this;
 	}
 	
+	/**
+	 * Gets the name of the current class, using either the canonical name or the simple name, depending on the
+	 * argument.
+	 * 
+	 * @param classNameLong
+	 *            - if <code>true</code>, the canonical name is used; the simple name otherwise.
+	 * @return the name of the class.
+	 */
 	private String makeClassName(boolean classNameLong)
 	{
 		return (classNameLong ? this.getClass().getCanonicalName() : this.getClass().getSimpleName());
 	}
-
+	
 	/**
-	 * Produces the actual name of the log, based on the unit name.
-	 * <p>
-	 * This only differs from the unit name if <code>config.addClassName</code> is specified.
+	 * If called, when the log is created, if another log exists with the same name, an error will be produced.
+	 * Otherwise, if another log with the same name already exists, that log will be used.
 	 * 
-	 * @return the name of the log.
-	 */
-	private String makeLogName(String name, boolean addClassName, boolean postfix, boolean useLongClassName)
-	{
-		String className = makeClassName(useLongClassName);
-		if(addClassName)
-		{
-			if(postfix)
-				name = name + className;
-			else
-				name = className + name;
-		}
-		return name;
-	}
-
-	/**
-	 * If called, then if another log exists with the same name, an error will be produced. Otherwise, if another log
-	 * with the same name exists, that log will be used.
+	 * @return the instance itself.
 	 */
 	public Unit setLogEnsureNew()
 	{
-		locked();
+		if(lockedR())
+			return this;
 		ensureNew = true;
 		return this;
 	}
 	
-	public Unit setLoggingLink(String parentLogName)
+	/**
+	 * Sets the type of the logging infrastructure and wrapper used by this unit.
+	 * 
+	 * @param loggerType
+	 *            - the type of logging infrastructure.
+	 * @return the instance itself.
+	 */
+	public Unit setLoggerType(LoggerType loggerType)
 	{
-		return setLink(new UnitLinkData().setparentLogName(parentLogName));
-	}
-	
-	public Unit setLogType(LoggerType loggerType)
-	{
-		locked();
-		this.loggerWrapperType = loggerType;
+		if(lockedR())
+			return this;
+		loggerWrapperType = loggerType;
+		if(loggerWrapperType != LoggerType.OTHER)
+			setLoggerClass(loggerWrapperType.getClassName());
 		return this;
 	}
 	
+	/**
+	 * Sets the class of the wrapper for the underlying logger. The class must implement {@link LogWrapper}.
+	 * 
+	 * @param className
+	 *            - the name of the class.
+	 * @return the instance itself.
+	 */
+	public Unit setLoggerClass(String className)
+	{
+		if(lockedR())
+			return this;
+		loggerWrapperClass = className;
+		for(LoggerType wrapper : LoggerType.values())
+			if(className.equals(wrapper.getClassName()))
+				return setLoggerType(loggerWrapperType);
+		return setLoggerType(LoggerType.OTHER);
+	}
+	
+	/**
+	 * Sets the level of the log, as one of {@link Level}. Messages below this level will not be shown in the output.
+	 * 
+	 * @param logLevel
+	 *            - the level.
+	 * @return the instance itself.
+	 */
+	public Unit setLogLevel(Level logLevel)
+	{
+		level = logLevel;
+		return this;
+	}
+	
+	/**
+	 * Sets the name of the parent log.
+	 * 
+	 * @param parentLogName
+	 *            - the name of the parent log.
+	 * @return the instance itself.
+	 */
 	public Unit setLink(String parentLogName)
 	{
 		return setLink(new UnitLinkData().setparentLogName(parentLogName));
 	}
 	
+	/**
+	 * Sets the information on linking this unit to another log.
+	 * 
+	 * @param unitLinkData
+	 *            - the {@link UnitLinkData} instance configuring the link.
+	 * @return the instance itself.
+	 */
 	public Unit setLink(UnitLinkData unitLinkData)
 	{
-		locked();
-		this.linkData = unitLinkData;
+		if(lockedR())
+			return this;
+		linkData = unitLinkData;
 		return this;
 	}
 	
+	/**
+	 * Sets the {@link DisplayEntity} to receive updates form the log.
+	 * 
+	 * @param logDisplay
+	 *            - the display.
+	 * @return the instance itself.
+	 */
 	public Unit setLogDisplay(DisplayEntity logDisplay)
 	{
-		this.display = logDisplay;
+		display = logDisplay;
 		return this;
 	}
 	
+	/**
+	 * Sets the {@link ReportingEntity} to receive updates from the log.
+	 * 
+	 * @param reportingEntity
+	 *            - the reporter.
+	 * @return the instance itself.
+	 */
 	public Unit setLogReporter(ReportingEntity reportingEntity)
 	{
-		this.reporter = reportingEntity;
-		return this;
-	}
-	
-	public Unit setLogLevel(Level logLevel)
-	{
-		this.level = logLevel;
+		reporter = reportingEntity;
 		return this;
 	}
 	
@@ -295,76 +399,77 @@ public class Unit extends Config
 	 * Instructs the Unit to exit. This method is only accessible inside the instance, except if for good reasons an
 	 * extending class makes it public.
 	 * <p>
-	 * As the Unit layer only manages logging, the only thing that happens is that the log exists (if any).
+	 * As the Unit layer only manages logging, the only thing that happens is that the log exits (if any).
 	 */
 	protected void doExit()
 	{
-		if(log != null && unitName != null && logName != null)
+		if(log != null && logName != null)
 		{
 			Logging.exitLogger(logName);
 			log = null;
+			logName = null;
 		}
+		unitName = null;
 	}
 	
 	/**
-	 * Post an error message. See {@link Log}.
+	 * Post an error message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
 	 *            : the message to display
+	 * @param arguments
+	 *            : arguments to insert into the message. See {@link LoggerSimple}.
 	 */
-	protected void le(String message)
+	protected void le(String message, Object... arguments)
 	{
-		ensureLocked();
-		if(log != null)
-			log.l(Level.ERROR, message);
+		l(Level.ERROR, message, arguments);
 	}
 	
 	/**
-	 * Post a warning message. See {@link Log}.
+	 * Post a warning message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
 	 *            : the message to display
+	 * @param arguments
+	 *            : arguments to insert into the message. See {@link LoggerSimple}.
 	 */
-	protected void lw(String message)
+	protected void lw(String message, Object... arguments)
 	{
-		ensureLocked();
-		if(log != null)
-			log.l(Level.WARN, message);
+		l(Level.WARN, message, arguments);
 	}
 	
 	/**
-	 * Post an info message. See {@link Log}.
+	 * Post an informative message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
 	 *            : the message to display
+	 * @param arguments
+	 *            : arguments to insert into the message. See {@link LoggerSimple}.
 	 */
-	protected void li(String message)
+	protected void li(String message, Object... arguments)
 	{
-		ensureLocked();
-		if(log != null)
-			log.l(Level.INFO, message);
+		l(Level.INFO, message, arguments);
 	}
 	
 	/**
-	 * Post a trace message. See {@link Log}.
+	 * Post a tracing message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
 	 *            : the message to display
+	 * @param arguments
+	 *            : arguments to insert into the message. See {@link LoggerSimple}.
 	 */
-	protected void lf(String message)
+	protected void lf(String message, Object... arguments)
 	{
-		ensureLocked();
-		if(log != null)
-			log.l(Level.TRACE, message);
+		l(Level.TRACE, message, arguments);
 	}
 	
 	/**
 	 * This method should be used in return statements. It adds a log message just before returning the {@link Object}
-	 * in the argument, displaying the {@link Object}.
+	 * in the argument, displaying the {@link Object}. See {@link LoggerSimple}.
 	 * 
 	 * @param ret
 	 *            : the {@link Object} to return.
-	 * 
 	 * @return the {@link Object} passed as argument.
 	 */
 	protected Object lr(Object ret)
@@ -374,7 +479,7 @@ public class Unit extends Config
 	
 	/**
 	 * This method should be used in return statements. It adds a log message just before returning the {@link Object}
-	 * in the argument.
+	 * in the argument. See {@link LoggerSimple}.
 	 * <p>
 	 * The {@link Object} in the argument is also put in the log message.
 	 * 
@@ -382,44 +487,79 @@ public class Unit extends Config
 	 *            : the {@link Object} to return and to display.
 	 * @param message
 	 *            : the message to display beside the {@link Object}.
-	 * 
+	 * @param arguments
+	 *            : arguments to insert into the message. See {@link LoggerSimple}.
 	 * @return the {@link Object} passed as argument.
 	 */
-	protected Object lr(Object ret, String message)
+	protected Object lr(Object ret, String message, Object... arguments)
 	{
-		lf(((ret != null) ? ret.toString() : "null") + (message != null ? ":[" + message + "]" : ""));
+		lf(LoggerSimple.ARGUMENT_BEGIN + ((ret != null) ? ret.toString() : "null") + LoggerSimple.ARGUMENT_END
+				+ (message != null ? ":[" + message + "]" : ""));
 		return ret;
 	}
 	
 	/**
 	 * This method displays a log message (with the level <code>TRACE</code>) only if the specified {@link DebugItem} is
-	 * activated.
+	 * activated. See {@link LoggerSimple}.
 	 * 
 	 * @param debug
 	 *            : the {@link DebugItem}
 	 * @param message
 	 *            : the log message
+	 * @param arguments
+	 *            : arguments to insert into the message. See {@link LoggerSimple}.
 	 */
-	protected void dbg(DebugItem debug, String message)
+	protected void dbg(DebugItem debug, String message, Object... arguments)
 	{
 		if(debug.toBool())
 			lf(message);
 	}
 	
 	/**
-	 * Composes a message with an array of {@link Object} instances.
+	 * This method calls the underlying logging infrastructure to display a message with the specified level, text, and
+	 * parameter objects.
+	 * 
+	 * @param messageLevel
+	 *            - the level of the message.
+	 * @param message
+	 *            - the text of the message.
+	 * @param arguments
+	 *            - the objects to be inserted in the placeholders of the message text (see {@link LoggerSimple}).
+	 */
+	protected void l(Level messageLevel, String message, Object... arguments)
+	{
+		ensureLocked();
+		if((log != null) && messageLevel.displayWith(level))
+			log.l(messageLevel, compose(message, arguments));
+	}
+	
+	/**
+	 * Composes a message with an array of {@link Object} instances. All apparitions of
+	 * {@link LoggerSimple#ARGUMENT_PLACEHOLDER} will be replaced with results of calls to the <code>toString()</code>
+	 * methods of objects, surrounded by {@link LoggerSimple#ARGUMENT_BEGIN} and {@link LoggerSimple#ARGUMENT_END}.
+	 * Remaining objects will be displayed after the message.
 	 * 
 	 * @param message
-	 *            : the message
+	 *            : the message text.
 	 * @param objects
-	 *            : the objects
-	 * @return the concatenated string
+	 *            : the objects.
+	 * @return the assembled string.
 	 */
 	protected static String compose(String message, Object[] objects)
 	{
-		String ret = message;
-		for(Object object : objects)
-			ret += "," + object.toString();
+		String[] parts = message.split(LoggerSimple.ARGUMENT_PLACEHOLDER, objects.length + 1);
+		// there are enough objects for all parts
+		// there may be more objects than parts
+		String ret = parts[0];
+		for(int i = 0; i < parts.length - 1; i++)
+		{
+			ret += LoggerSimple.ARGUMENT_BEGIN + objects[i] + LoggerSimple.ARGUMENT_END;
+			ret += parts[i + 1];
+		}
+		// deal with the rest of the objects
+		for(int i = parts.length - 1; i < objects.length; i++)
+			ret += LoggerSimple.ARGUMENT_BEGIN + objects[i] + LoggerSimple.ARGUMENT_END;
+		
 		return ret;
 	}
 }

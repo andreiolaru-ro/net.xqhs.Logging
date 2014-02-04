@@ -12,32 +12,52 @@
 package net.xqhs.util.logging.wrappers;
 
 import java.io.OutputStream;
-import java.util.logging.Logger;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
-import net.xqhs.util.logging.Log;
-import net.xqhs.util.logging.Logger.Level;
+import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.logging.LogWrapper;
 
 /**
- * A {@link Log} wrapper of Java's {@link Logger}.
+ * A {@link LogWrapper} wrapper of Java's {@link java.util.logging.Logger}.
  * 
  * @author Andrei Olaru
  * 
- * @see Log
+ * @see LogWrapper
  * 
  */
 
-public class JavaLogWrapper extends Log
+public class JavaLogWrapper extends LogWrapper
 {
-	
+	/**
+	 * The underlying logger.
+	 */
 	protected java.util.logging.Logger	theLog	= null;
 	
+	/**
+	 * The set of handlers added to the log.
+	 */
+	@SuppressWarnings("unused") // type arguments needed for Java 1.6.
+	protected Set<StreamHandler> handlers = new HashSet<StreamHandler>();
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param name - the name of the log.
+	 */
 	public JavaLogWrapper(String name)
 	{
 		theLog = java.util.logging.Logger.getLogger(name);
 	}
 	
+	/**
+	 * Converts {@link Level} to {@link java.util.logging.Level}.
+	 * 
+	 * @param level - the level to convert.
+	 * @return - the resulting level.
+	 */
 	protected static java.util.logging.Level toWrapedLevel(Level level)
 	{
 		switch(level)
@@ -68,12 +88,22 @@ public class JavaLogWrapper extends Log
 	@Override
 	public void addDestination(String format, OutputStream destination)
 	{
-		theLog.addHandler(new StreamHandler(destination, new SimpleFormatter()));
+		StreamHandler handler = new StreamHandler(destination, new SimpleFormatter());
+		handlers.add(handler);
+		theLog.addHandler(handler);
 	}
 	
 	@Override
 	public void l(Level level, String message)
 	{
 		theLog.log(toWrapedLevel(level), message);
+	}
+	
+	@Override
+	public void exit()
+	{
+		theLog.setLevel(java.util.logging.Level.OFF);
+		for(StreamHandler handler : handlers)
+			theLog.removeHandler(handler);
 	}
 }

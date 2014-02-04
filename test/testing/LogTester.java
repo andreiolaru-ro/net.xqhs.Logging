@@ -11,17 +11,18 @@
  ******************************************************************************/
 package testing;
 
-import net.xqhs.util.logging.Log;
-import net.xqhs.util.logging.Log.LoggerType;
-import net.xqhs.util.logging.Logger.Level;
-import net.xqhs.util.logging.Logging;
+import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.UnitComponent;
+import net.xqhs.util.logging.logging.LogWrapper;
+import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
+import net.xqhs.util.logging.logging.Logging;
 
+@SuppressWarnings("javadoc")
 public class LogTester
 {
-	public static void main(String[] args)
+	public static void main(String[] args) throws ClassNotFoundException
 	{
-//		Logging.getMasterLogging().setLogLevel(Level.OFF);
+		// Logging.getMasterLogging().setLogLevel(Level.OFF);
 		
 		String NAME = "log";
 		
@@ -30,16 +31,19 @@ public class LogTester
 		// non-recommended use
 		System.out.println("\n\n=================== PART 1 ====================\n\n");
 		
-		Log log1 = Logging.getLogger(NAME);
-		Log log2 = Logging.getLogger(NAME + "-J", NAME, null, null, true, LoggerType.JAVA, Level.INFO);
+		LogWrapper log1 = Logging.getLogger(NAME, null, null, null, true, null, null);
+		LogWrapper log2 = Logging.getLogger(NAME + "-J", NAME, null, null, true, LoggerType.JAVA.getClassName(),
+				Level.INFO);
 		log1.setLevel(Level.INFO);
 		
-		log1.l(Level.ERROR, "error");
-		log2.l(Level.ERROR, "error");
-		log1.l(Level.INFO, "info");
-		log2.l(Level.INFO, "info");
+		log1.l(Level.ERROR, "error 1");
+		log2.l(Level.ERROR, "error 2");
+		log1.l(Level.INFO, "info 1");
+		log2.l(Level.INFO, "info 2");
 		
 		Logging.exitLogger(NAME);
+		
+		log1.l(Level.ERROR, "error out");
 		
 		try
 		{
@@ -51,12 +55,19 @@ public class LogTester
 		
 		System.out.println("\n\n=================== PART 2 ====================\n\n");
 		
-		UnitComponent testUnit = (UnitComponent) new UnitComponent().setUnitName(NAME, true, true).setLogLevel(
-				Level.WARN);
+		UnitComponent testUnit = (UnitComponent) new UnitComponent().setLogLevel(Level.WARN);
+		// testUnit.setUnitName(NAME + "|", true, true);
+		// testUnit.setUnitName(Unit.DEFAULT_UNIT_NAME);
+		testUnit.setUnitName(NAME);
 		
-		testUnit.le("error");
+		testUnit.le("error [] here.", "par1", "par2");
 		testUnit.li("info");
+		
+		testUnit.setUnitName("hello");
+		
 		testUnit.doExit();
+		
+		testUnit.le("error out");
 		
 		try
 		{

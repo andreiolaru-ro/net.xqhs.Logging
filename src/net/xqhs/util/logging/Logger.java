@@ -11,105 +11,55 @@
  ******************************************************************************/
 package net.xqhs.util.logging;
 
-import java.io.OutputStream;
-
-import net.xqhs.util.logging.Debug.DebugItem;
-
 /**
- * Any class that offer logging services to an external entity should implement this interface.
+ * Any class that offers logging services to an external entity should implement this interface.
  * <p>
- * This interface should also allow classes like {@link Unit} and {@link UnitComponent} to expose only logging
+ * This interface extends the functionality described by {@link LoggerSimple}.
+ * <p>
+ * This interface should also allow classes like {@link UnitExt} and {@link UnitComponentExt} to expose only logging
  * functions, without any configuration facilities.
- * <p>
- * It works with a reduced set of levels (see {@link Level}): trace, info, warning, error, plus <code>OFF</code> and
- * <code>ALL</code> for log settings.
  * <p>
  * Implementing classes should offer three sets of methods:
  * <ul>
  * <li>Classic: <code>error</code>, <code>warn</code>, <code>info</code>, <code>trace</code> - also available with
  * {@link Object} parameters;
- * <li>Short: <code>le lw li lf</code>, <code>l(Level, String)</code>;
- * <li>Special: <code>lr</code>, to be used in return statements, and <code>dbg</code>. See the documentation of the
- * methods.
+ * <li>Short: <code>le, lw, li, lf</code>;
+ * <li>Special: <code>lr</code>, to be used in return statements, and <code>dbg</code>. See {@link LoggerSimple}.
  * </ul>
  * 
  * @author Andrei Olaru
- * 
  */
-public interface Logger
+public interface Logger extends LoggerSimple
 {
 	/**
-	 * Indicates the level of the log. Mimics {@link org.apache.log4j.Level}.
+	 * Relay for {@link #le(String, Object...)}.
 	 * 
-	 * @author Andrei Olaru
-	 * 
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
 	 */
-	public enum Level {
-		
-		OFF,
-		
-		ERROR,
-		
-		WARN,
-		
-		INFO,
-		
-		TRACE,
-		
-		ALL,
-	}
-
-	public void error(String message, Object... objects);
-	
-	public void warn(String message, Object... objects);
-	
-	public void info(String message, Object... objects);
-	
-	public void trace(String message, Object... objects);
-	
-	public void error(String message);
-	
-	public void warn(String message);
-	
-	public void info(String message);
-	
-	public void trace(String message);
-	
-	public void le(String message);
-	
-	public void lw(String message);
-	
-	public void li(String message);
-	
-	public void lf(String message);
-	
-	public Object lr(Object ret);
+	public void error(String message, Object... arguments);
 	
 	/**
-	 * This should be used in return statements. It adds a log message just before returning the {@link Object} in the
-	 * argument.
-	 * <p>
-	 * The {@link Object} in the argument is also put in the log message.
+	 * Relay for {@link #lw(String, Object...)}.
 	 * 
-	 * @param ret
-	 *            : the {@link Object} to return and to display.
-	 * @param message
-	 *            : the message to display beside the {@link Object}.
-	 * 
-	 * @return the {@link Object} passed as argument.
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
 	 */
-	public Object lr(Object ret, String message);
+	public void warn(String message, Object... arguments);
 	
 	/**
-	 * This displays a log message (with the level <code>TRACE</code>) only if the specified {@link DebugItem} is
-	 * activated.
+	 * Relay for {@link #li(String, Object...)}.
 	 * 
-	 * @param debug
-	 *            : the {@link DebugItem}
-	 * @param message
-	 *            : the log message
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
 	 */
-	public void dbg(DebugItem debug, String message);
+	public void info(String message, Object... arguments);
 	
-	public void doExit();
+	/**
+	 * Relay for {@link #lf(String, Object...)}.
+	 * 
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
+	 */
+	public void trace(String message, Object... arguments);
 }

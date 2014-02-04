@@ -9,38 +9,51 @@
  * 
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.xqhs.util.logging;
+package net.xqhs.util.logging.logging;
 
+import net.xqhs.util.logging.Debug;
 
 /**
- * The class extends {@link UnitExt} to implement all methods required by the {@link Logger} interface and expose all
- * methods as public.
+ * Class containing the enumeration of debug constants for the logging infrastructure itself (internal audit).
  * 
  * @author Andrei Olaru
  */
-public class UnitComponentExt extends UnitComponent implements Logger
+public class LogDebug extends Debug
 {
-	@Override
-	public void error(String message, Object... arguments)
-	{
-		le(message, arguments);
-	}
-	
-	@Override
-	public void warn(String message, Object... arguments)
-	{
-		lw(message, arguments);
-	}
-	
-	@Override
-	public void info(String message, Object... arguments)
-	{
-		li(message, arguments);
-	}
-	
-	@Override
-	public void trace(String message, Object... arguments)
-	{
-		lf(message, arguments);
+	/**
+	 * The internal debug constants.
+	 * 
+	 * @author Andrei Olaru
+	 */
+	public enum LogDebugItem implements DebugItem {
+		/**
+		 * Tracing of log management.
+		 */
+		D_LOG_MANAGEMENT(true),
+		
+		;
+		
+		/**
+		 * The activation state.
+		 */
+		private boolean	isSet;
+		
+		/**
+		 * Default constructor.
+		 * 
+		 * @param isSet
+		 *            - activation state.
+		 */
+		private LogDebugItem(boolean isSet)
+		{
+			this.isSet = isSet;
+		}
+		
+		@Override
+		public boolean toBool()
+		{
+			return isSet;
+		}
+		
 	}
 }

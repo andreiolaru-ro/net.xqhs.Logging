@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2013 Andrei Olaru.
+ * Copyright (C) 2014 Andrei Olaru.
  * 
  * This file is part of Logging.
  * 
@@ -9,31 +9,8 @@
  * 
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.xqhs.util.logging;
+/**
+ * This package contains classes related to the internal workings of the logging infrastructure.
+ */
+package net.xqhs.util.logging.logging;
 
-public class LogDebug extends Debug
-{
-	public enum LogDebugItem implements DebugItem
-	{
-		/**
-		 * tracing of log management.
-		 */
-		D_LOG_MANAGEMENT(true),
-		
-		;
-		
-		private boolean isSet;
-
-		private LogDebugItem(boolean isSet)
-		{	
-			this.isSet = isSet;
-		}
-
-		@Override
-		public boolean toBool()
-		{
-			return isSet;
-		}
-		
-	}
-}

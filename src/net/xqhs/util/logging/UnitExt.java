@@ -21,43 +21,47 @@ package net.xqhs.util.logging;
  */
 public class UnitExt extends Unit
 {
-	protected void error(String message, Object... objects)
+	/**
+	 * Relay for {@link #le(String, Object...)}.
+	 * 
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
+	 */
+	protected void error(String message, Object... arguments)
 	{
-		error(compose(message, objects));
+		error(compose(message, arguments));
 	}
 	
-	protected void warn(String message, Object... objects)
+	/**
+	 * Relay for {@link #lw(String, Object...)}.
+	 * 
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
+	 */
+	protected void warn(String message, Object... arguments)
 	{
-		warn(compose(message, objects));
+		warn(compose(message, arguments));
 	}
 	
-	protected void info(String message, Object... objects)
+	/**
+	 * Relay for {@link #li(String, Object...)}.
+	 * 
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
+	 */
+	protected void info(String message, Object... arguments)
 	{
-		info(compose(message, objects));
+		info(compose(message, arguments));
 	}
 	
-	protected void trace(String message, Object... objects)
+	/**
+	 * Relay for {@link #lf(String, Object...)}.
+	 * 
+	 * @param message : see the relayed method.
+	 * @param arguments : see the relayed method.
+	 */
+	protected void trace(String message, Object... arguments)
 	{
-		trace(compose(message, objects));
-	}
-	
-	protected void error(String message)
-	{
-		le(message);
-	}
-	
-	protected void warn(String message)
-	{
-		lw(message);
-	}
-	
-	protected void info(String message)
-	{
-		li(message);
-	}
-	
-	protected void trace(String message)
-	{
-		lf(message);
+		trace(compose(message, arguments));
 	}
 }

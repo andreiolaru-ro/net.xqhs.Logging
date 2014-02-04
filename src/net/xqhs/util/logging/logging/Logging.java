@@ -9,9 +9,11 @@
  * 
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.xqhs.util.logging;
+package net.xqhs.util.logging.logging;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,23 +21,28 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import net.xqhs.util.logging.Log.LoggerType;
-import net.xqhs.util.logging.LogDebug.LogDebugItem;
-import net.xqhs.util.logging.Logger.Level;
-import net.xqhs.util.logging.wrappers.JavaLogWrapper;
-import net.xqhs.util.logging.wrappers.Log4JWrapper;
+import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.UnitComponent;
+import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
+import net.xqhs.util.logging.logging.LogDebug.LogDebugItem;
 
 /**
- * Implements configuring entity and manager for logs. The idea is to have standard logs and wrappers, but with some
+ * Implements the configuring entity and manager for logs. The idea is to have standard logs and wrappers, but with some
  * additional features, that are accessible via static functions of this class, using the Logger object itself as a
  * unique reference.
  * <p>
- * There are currently three possible destinations for the logging information: the console output is standard; an
- * optional {@link DisplayEntity} may be specified to be updated with the contents of the log; a {@link ReportingEntity}
- * may be specified that will be updated with the logging information.
+ * The class contains two parts: the static part for management of logs, and a non-static part that is instantiated for
+ * each log, and contains a log wrapper.
  * <p>
- * A new log is obtained by <code>getLogger(unitName)</code>, where <code>unitName</code> should be unique and is the
- * name of the log.
+ * There are currently three possible destinations for the logging information: the console output is standard; an
+ * optional {@link DisplayEntity} may be specified to be updated with the contents of the log immediately after the log
+ * entry is posted; a {@link ReportingEntity} may be specified that will be updated with the logging information at
+ * regular intervals of time. The output that is sent to the display entity has a simple form, as it is presumed that
+ * the display entity is specific to the unit. The output that is sent to the reporting entity is also time-stamped, as
+ * it is presumed that the reports reach a remote machine (or some other centralizing entity).
+ * <p>
+ * A new log is obtained by {@link #getLogger(String, String, DisplayEntity, ReportingEntity, boolean, String, Level)},
+ * where the <code>name</code> should be unique and is the name of the log.
  * <p>
  * Other constructors are available, specifying a {@link DisplayEntity} and / or a {@link ReportingEntity}.
  * <p>
@@ -51,16 +58,17 @@ import net.xqhs.util.logging.wrappers.Log4JWrapper;
 public class Logging
 {
 	/**
-	 * Interface for an entity / unit that keeps a log and that needs to report that log to other entities.
+	 * Interface for an entity / unit that keeps a log and that needs to report that log to other entities. Updates will
+	 * be posted at regular intervals of time, and will be incremental (a new post will contain all logging information
+	 * since the previous successful posting. The messages will contain timestamp, log name, level and content.
 	 * 
 	 * @author Andrei Olaru
-	 * 
 	 */
 	public interface ReportingEntity
 	{
 		/**
-		 * The function will be called at intervals of reportUpdateDelay, if new logging information exist since the
-		 * last call.
+		 * The method will be called at intervals of <code>reportUpdateDelay</code>, if new logging information exist
+		 * since the last call.
 		 * 
 		 * @param content
 		 *            - an update from the log containing the new logging information since the last call of this
@@ -72,20 +80,33 @@ public class Logging
 	}
 	
 	/**
-	 * Interface for an entity that is able to display the log (e.g. in a visual interface).
+	 * Interface for an entity that is able to display the log (e.g. in a visual interface). Updates will be posted
+	 * immediately. The {@link #output(String)} method is called with the entire log as argument, using logging messages
+	 * with just the level ad the content.
 	 * 
 	 * @author Andrei Olaru
 	 * 
 	 */
 	public interface DisplayEntity
 	{
-		
+		/**
+		 * The method is called whenever new logging information is posted.
+		 * 
+		 * @param string
+		 *            - the entire contents of the log.
+		 */
 		void output(String string);
 		
 	}
 	
-	private static LoggerType				defaultLoggerWrapper	= LoggerType.LOG4J;
+	/**
+	 * The default log wrapper, as one of {@link LoggerType}.
+	 */
+	public static final LoggerType			defaultLoggerWrapper	= LoggerType.LOG4J;
 	
+	/**
+	 * A special character that is used to separate log lines when sending log output to the reporting entity.
+	 */
 	public static Character					AWESOME_SEPARATOR		= new Character((char) 30);
 	
 	// // here be the static components of the class, which by being static are unique for the current JVM.
@@ -93,7 +114,7 @@ public class Logging
 	/**
 	 * Contains all the currently active logs, identified by their [unit]Name. Active means that a timer is associated
 	 * with them.
-	 * 
+	 * <p>
 	 * All access to the logs field should be synchronized explicitly.
 	 */
 	protected static Map<String, Logging>	logs					= Collections
@@ -103,46 +124,43 @@ public class Logging
 	 * field.
 	 */
 	@SuppressWarnings("unused")
+	// Type arguments specified for Java 1.6 compatibility.
 	protected static Map<String, String>	parents					= new HashMap<String, String>();
 	
 	/**
-	 * A {@link Unit} or logging messages related to the log management. Can be configured via
-	 * <code>configureMasterLogging()</code>.
+	 * A {@link UnitComponent} for logging messages related to the log management.
 	 * <p>
 	 * Will automatically start and stop when the first log is created / when the last log exists.
 	 */
-	protected static Unit					masterLog				= null;
+	protected static UnitComponent			masterLog				= null;
+	/**
+	 * The name for the log held by {@link #masterLog}.
+	 */
 	protected static String					masterLogName			= "M-log";
-	static {
-		masterLog = new Unit() {
-			@Override
-			protected String getDefaultUnitName()
-			{
-				return masterLogName;
-			}
-		};
-	}
 	
 	// /////////// here be the components of the log
 	/**
-	 * The logger that is being wrapped by the instance.
+	 * The wrapper of the actual log. This instance wraps the wrapper, in turn.
 	 */
-	protected Log							logger					= null;
+	protected LogWrapper					logger					= null;
 	/**
-	 * The logger implementation. Indicates the wrapper to use.
+	 * The class of the implementation for the log wrapper.
+	 */
+	protected String						wrapperClass			= null;
+	/**
+	 * The type of the implementation for the log wrapper, as an instance of {@link LoggerType}.
 	 */
 	protected LoggerType					wrapperType				= null;
 	/**
-	 * The name of the log and of the Unit.
+	 * The name of the log (may be the same as the name of the containing Unit).
 	 */
 	protected String						name					= null;
 	/**
-	 * The level of the log (see {@link Log} ).
+	 * The current level of the log. Initialized to a default value of {@link Level#ALL}.
 	 */
 	protected Level							logLevel				= Level.ALL;
 	
-	// /////////// here be the components of the log related to external reporting (to a text area and to a Jade agent,
-	// respectively
+	// here be the components of the log related to external reporting (to a text area and to a Jade agent, respectively
 	/**
 	 * Contains the entire output of the log. Version without time stamps and unit name, just level and message.
 	 */
@@ -152,32 +170,35 @@ public class Logging
 	 */
 	protected ByteArrayOutputStream			logOutputStamped		= null;
 	/**
-	 * used to trace if there have been modifications to the log, before flushing it into the TextArea.
+	 * Used to trace if there have been modifications to the log, before flushing it into the display entity.
 	 */
 	protected long							logSize					= 0L;
 	/**
-	 * The {@link DisplayEntity} that will be kept up to date with the contents of the log
+	 * The {@link DisplayEntity} that will be kept up to date with the contents of the log.
 	 */
 	protected DisplayEntity					logDisplay				= null;
+	/**
+	 * The {@link ReportingEntity} to sent logging information to.
+	 */
+	protected ReportingEntity				externalReporter		= null;
 	/**
 	 * Timer to update the external views of this log.
 	 */
 	protected Timer							logTimer				= null;
 	/**
-	 * Delay at which to update the text area.
+	 * Delay at which to update the display entity.
 	 */
 	protected long							logUpdateDelay			= 250;
 	/**
-	 * Delay at which to update the visualizing agent.
+	 * Delay at which to update the reporting entity.
 	 */
 	protected long							reportUpdateDelay		= 2000;
+	/**
+	 * Time left to the next report sent to the reporting entity.
+	 */
 	protected long							timeToNextReport		= 0;
 	/**
-	 * The {@link AID} of the Jade agent to send logging information to.
-	 */
-	protected ReportingEntity				externalReporter		= null;
-	/**
-	 * Cumulative size of the logging information sent so far.
+	 * Cumulative size of the logging information sent so far to the reporting entity.
 	 */
 	protected int							lastUpdatedSize			= 0;
 	
@@ -187,7 +208,7 @@ public class Logging
 	 * 
 	 * @return the master log
 	 */
-	public static Unit getMasterLogging()
+	public static UnitComponent getMasterLogging()
 	{
 		return masterLog;
 	}
@@ -197,47 +218,56 @@ public class Logging
 	 * <code>false</code>), the log corresponding to that name will be returned and all other parameters will be
 	 * ignored.
 	 * 
-	 * @throws IllegalArgumentException
-	 *             : if the name is not new and <code>ensureNew</code> was set to true.
 	 * @param name
-	 *            : is the name of the associated unit, and of the log. Should be not null unique among active logs. Use
-	 *            {@link Unit}.DEFAULT_UNIT_NAME for the default.
+	 *            : is the name to be given to, and to identify the log. Should be not <code>null</code> and unique
+	 *            among active logs.
 	 * @param link
-	 *            : the name of another, 'parent', log that this log is linked to; when the other log will close, this
-	 *            will be closed as well.
-	 * @param textArea
-	 *            : a TextArea that will be updated with the contents of the log.
-	 * @param loggerType
-	 *            : the {@link Log} class to instantiate. If null, one of them is chosen by default.
-	 * @return A new, configured, Logger object.
+	 *            : the name of another, 'parent', log that this log is linked to, if any; when the parent log will
+	 *            close, this log will be closed as well.
+	 * @param display
+	 *            : the {@link DisplayEntity} to receive the output of the log.
+	 * @param reporter
+	 *            : the {@link ReportingEntity} to receive the output of the log.
+	 * @param ensureNew
+	 *            : <code>false</code> if to return an existing log with the same name, if any; <code>true</code> if to
+	 *            throw an exception should another log with the same name exist.
+	 * @param logWrapperClass
+	 *            : the {@link LogWrapper} class to instantiate. If null, the class of {@link #defaultLoggerWrapper} is
+	 *            chosen. Some class names can also be obtained from calling {@link LoggerType#getClassName()} on
+	 *            various values of {@link LoggerType}.
+	 * @param level
+	 *            : the initial level of the log, as an instance of {@link Level}.
+	 * @return A new, configured, {@link LogWrapper} instance; or an existing instance if the same name already existed
+	 *         and <code>ensureNew</code> was set to <code>false</code>.
+	 * @throws ClassNotFoundException
+	 *             : if the wrapper class cannot be found or instantiated.
+	 * @throws IllegalArgumentException
+	 *             : if the name is not new and <code>ensureNew</code> was set to <code>true</code>.
 	 */
-	public static Log getLogger(String name, String link, DisplayEntity display, ReportingEntity reporter,
-			boolean ensureNew, LoggerType loggerType, Level level)
+	public static LogWrapper getLogger(String name, String link, DisplayEntity display, ReportingEntity reporter,
+			boolean ensureNew, String logWrapperClass, Level level) throws ClassNotFoundException
 	{
 		boolean erred = false;
 		int nlogs = -1;
 		
-		if(masterLog.unitName == null)
+		if((masterLog == null) || (masterLog.getUnitName() == null)) // avoid recursion
 		{
-			masterLog.unitName = masterLogName; // avoid recursion
+			masterLog = new UnitComponent();
+			masterLog.setUnitName(masterLogName);
 			masterLog.lock();
 		}
 		
 		if(name == null)
 			throw new IllegalArgumentException(
-					"log name cannot be null. Use unit.DEFAULT_UNIT_NAME for the default name.");
+					"log name cannot be null. Use Unit.DEFAULT_UNIT_NAME for the default name.");
 		
-		if((masterLog.log != null) && LogDebugItem.D_LOG_MANAGEMENT.toBool())
-			masterLog.log.l(Level.TRACE, "required: [" + name + "]" + (ensureNew ? "[new]" : "")
-					+ "; existing: [" + logs.size() + "]: [" + logs + "]");
+		masterLog.dbg(LogDebugItem.D_LOG_MANAGEMENT, "required: [" + name + "]" + (ensureNew ? "[new]" : "")
+				+ "; existing: [" + logs.size() + "]: [" + logs + "]");
 		
-		Logging thelog = new Logging(name, loggerType, display, reporter);
+		Logging thelog = new Logging(name, logWrapperClass, display, reporter);
 		Logging alreadyPresent = null;
 		synchronized(logs)
 		{
-			// if(masterLog.log != null) // uncomment only if necessary - it is in a critical region
-			// masterLog.log.dbg(DebugItem.D_LOG_MANAGEMENT, "/s/ required: [" + name + "]" + (ensureNew ? "[new]" : "")
-			// + "; existing: [" + logs.size() + "]: [" + logs + "]");
 			if(logs.containsKey(name))
 				if(ensureNew)
 					erred = true;
@@ -267,61 +297,12 @@ public class Logging
 	}
 	
 	/**
-	 * Provides a logger with the given name. If the name is already in use, the log corresponding to that name will be
-	 * returned and all other parameters will be ignored.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             : if the name already exists for an active log.
-	 * @param name
-	 *            : is the name of the associated unit, and of the log. Should be unique among active logs.
-	 * @param link
-	 *            : the name of another, 'parent', log that this log is linked to; when the other log will close, this
-	 *            will be closed as well.
-	 * @return A new, configured, Logger object.
-	 */
-	public static Log getLogger(String name, String link)
-	{
-		return getLogger(name, link, null, null, false, null, null);
-	}
-	
-	/**
-	 * Provides a logger with the given name.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             : if the name already exists for an active log.
-	 * @param name
-	 *            : is the name of the associated unit, and of the log. Should be unique among active logs.
-	 * @return A new, configured, Logger object.
-	 */
-	public static Log getLogger(String name)
-	{
-		return getLogger(name, null, null, null, false, null, null);
-	}
-	
-	/**
-	 * Provides a logger with the given name. If the name is already in use, the log corresponding to that name will be
-	 * returned and all other parameters will be ignored.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             : if the name already exists for an active log.
-	 * @param name
-	 *            : is the name of the associated unit, and of the log. Should be unique among active logs.
-	 * @param textArea
-	 *            : a TextArea that will be updated with the contents of the log.
-	 * @return A new, configured, Logger object.
-	 */
-	public static Log getLogger(String name, DisplayEntity display)
-	{
-		return getLogger(name, null, display, null, false, null, null);
-	}
-	
-	/**
 	 * Get the whole output of the log.
 	 * 
 	 * @param name
-	 *            : the name of the log. If within a normal {@link Unit}, probably the return value of getName().
+	 *            : the name of the log.
 	 * @param shortOutput
-	 *            : if <code>true</code>, the output does not contain the agent name and time stamps (just the level and
+	 *            : if <code>true</code>, the output does not contain the log name and time stamps (just the level and
 	 *            message).
 	 * @return the entire contents of the log.
 	 */
@@ -340,12 +321,11 @@ public class Logging
 	}
 	
 	/**
-	 * Closes the log specified by the name (stops the associated timer) and frees the name so it can be reused. The log
-	 * with not be flushed (sent as report) before closing.
+	 * Closes the log specified by the name, stops the associated timer, and frees the name so it can be reused. The log
+	 * will not be flushed (sent as report) before closing.
 	 * 
 	 * @param name
-	 *            : the name of the log to be freed. If within a normal {@link Unit}, probably the return value of
-	 *            getName().
+	 *            : the name of the log to be freed.
 	 */
 	public static void exitLogger(String name)
 	{
@@ -356,8 +336,9 @@ public class Logging
 	 * Closes the log specified by the name (stops the associated timer) and frees the name so it can be reused.
 	 * 
 	 * @param name
-	 *            the name of the log to be freed. If within a normal {@link Unit}, probably the return value of
-	 *            getName().
+	 *            : the name of the log to be freed.
+	 * @param flushFirst
+	 *            : if <code>true</code>, a last report will be sent to the reporting entity (if any).
 	 */
 	public static void exitLogger(String name, boolean flushFirst)
 	{
@@ -365,7 +346,8 @@ public class Logging
 		Logging found = null;
 		int nlogs = -1;
 		@SuppressWarnings("unused")
-		Vector<String> toClose = new Vector<String>();
+		// type argument required by Java 1.6.
+		Vector<String> toClose = new Vector<String>(); // logs to which this is parent.
 		synchronized(logs)
 		{
 			if(!logs.containsKey(name))
@@ -377,6 +359,7 @@ public class Logging
 						toClose.add(link.getKey());
 				found = logs.get(name);
 				logs.remove(name);
+				parents.remove(name);
 				nlogs = logs.size();
 			}
 		}
@@ -386,16 +369,15 @@ public class Logging
 		for(String logName : toClose)
 			exitLogger(logName, flushFirst);
 		if(flushFirst)
-			found.updateReport();
+			found.updateLogText();
 		found.doexit();
 		
-		if(nlogs == 1 && masterLog != null && masterLog.log != null) // this was the last non-master log
+		if(nlogs == 1 && masterLog != null) // this was the last non-master log
 			masterLog.doExit();
 	}
 	
 	/**
 	 * Resets the maps containing the links to the logs.
-	 * 
 	 * <p>
 	 * SHOULD BE USED WITH EXTREME CAUTION and only in special cases where the application is reset without closing it
 	 * (e.g. on Android).
@@ -409,37 +391,68 @@ public class Logging
 			parents.clear();
 		}
 		
-		masterLog.log.l(Level.TRACE, "--------logs cleared-------------");
-		masterLog.doExit();
+		if(masterLog != null)
+		{
+			masterLog.lf("--------logs cleared-------------");
+			masterLog.doExit();
+		}
 	}
 	
-	protected Logging(String logName, LoggerType type, DisplayEntity ta, ReportingEntity reporter)
+	/**
+	 * Constructor for an instance of {@link Logging}.
+	 * 
+	 * @param logName
+	 *            - the name of the log.
+	 * @param loggerClass
+	 *            - the class of the contained wrapper.
+	 * @param display
+	 *            - the {@link DisplayEntity} to use.
+	 * @param reporter
+	 *            - the {@link ReportingEntity} to use.
+	 * @throws ClassNotFoundException
+	 *             - if the wrapper class cannot be found or instantiated.
+	 */
+	protected Logging(String logName, String loggerClass, DisplayEntity display, ReportingEntity reporter)
+			throws ClassNotFoundException
 	{
-		this.name = logName;
+		name = logName;
 		logOutput = new ByteArrayOutputStream();
 		logOutputStamped = new ByteArrayOutputStream();
 		
-		if(type == null)
-			wrapperType = defaultLoggerWrapper;
-		else
-			wrapperType = type;
-		switch(wrapperType)
+		if(loggerClass == null)
 		{
-		case JAVA:
-			logger = new JavaLogWrapper(logName);
-			break;
-		case LOG4J:
-			logger = new Log4JWrapper(logName);
-			break;
+			wrapperType = defaultLoggerWrapper;
+			wrapperClass = defaultLoggerWrapper.getClassName();
+		}
+		else
+		{
+			for(LoggerType wrapper : LoggerType.values())
+				if(loggerClass.equals(wrapper.getClassName()))
+					wrapperType = wrapper;
+			wrapperClass = loggerClass;
+		}
+		
+		// instantiate wrapper
+		ClassLoader cl = null;
+		cl = new ClassLoader(this.getClass().getClassLoader()) {
+			// nothing to extend
+		};
+		try
+		{
+			Constructor<?> constructor = cl.loadClass(wrapperClass).getConstructor(String.class);
+			logger = (LogWrapper) constructor.newInstance(name);
+		} catch(Exception e)
+		{
+			throw new ClassNotFoundException("Wrapper class cannot be instantiated.", e);
 		}
 		
 		if(logger == null)
 			throw (new IllegalStateException());
 		
 		logger.setLevel(logLevel);
-		// level, message: for TextArea
+		// level, message: for DisplayEntity
 		logger.addDestination("%-5p \t %m%n", logOutput);
-		// date level name message (no new line): for reporting (also, obscure reference)
+		// date level name message (no new line): for ReportingEntity (also, obscure reference)
 		logger.addDestination(AWESOME_SEPARATOR + "%d{HH:mm:ss:SSSS} %-5p [" + logName + "]:\t %m" + AWESOME_SEPARATOR,
 				logOutputStamped);
 		// priority (level), name, message, line break: for console
@@ -451,9 +464,12 @@ public class Logging
 		case JAVA:
 			logger.addDestination(null, System.out);
 			break;
+		case OTHER:
+			// TODO
+			break;
 		}
 		
-		logDisplay = ta;
+		logDisplay = display;
 		
 		externalReporter = reporter;
 		
@@ -471,17 +487,23 @@ public class Logging
 		}
 	}
 	
-	protected Log getLog()
+	/**
+	 * @return the underlying log wrapper.
+	 */
+	protected LogWrapper getLog()
 	{
 		return logger;
 	}
 	
+	/**
+	 * Method invoked when the output of the log must be displayed or sent elsewhere. THe call of this method is
+	 * triggered by the timer created at construction.
+	 */
 	protected void updateLogText()
 	{
 		int cSize = logOutput.size();
 		if((logDisplay != null) && (logSize != cSize))
 		{
-			// logger.trace("updating text area...");
 			logDisplay.output(logOutput.toString());
 			logSize = cSize;
 		}
@@ -493,6 +515,9 @@ public class Logging
 		}
 	}
 	
+	/**
+	 * Reports any changes in the log to the {@link ReportingEntity}, if any.
+	 */
 	protected void updateReport()
 	{
 		int cSize2 = logOutputStamped.size();
@@ -500,26 +525,19 @@ public class Logging
 		{
 			// logger.trace("updating reporter...");
 			byte[] content = logOutputStamped.toByteArray();
-			byte[] update = copyOfRange(content, lastUpdatedSize, cSize2);
+			byte[] update = Arrays.copyOfRange(content, lastUpdatedSize, cSize2);
 			if(externalReporter.report(new String(update).trim()))
 				lastUpdatedSize = cSize2;
 		}
 	}
 	
-	private static byte[] copyOfRange(byte[] content, int start, int end)
-	{
-		int length = end - start;
-		byte[] returnArray = new byte[length];
-		
-		for(int i = 0; i < length; ++i)
-			returnArray[i] = content[start + i];
-		
-		return returnArray;
-	}
-	
+	/**
+	 * Exists the log. More specifically, it cancels the update timer ({@link #logTimer}).
+	 */
 	protected void doexit()
 	{
 		if(logTimer != null)
 			logTimer.cancel();
+		logger.exit();
 	}
 }

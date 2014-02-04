@@ -9,12 +9,13 @@
  * 
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.xqhs.util.logging;
+package net.xqhs.util.logging.logging;
 
 import java.io.OutputStream;
 
-import net.xqhs.util.logging.Debug.DebugItem;
-import net.xqhs.util.logging.Logger.Level;
+import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.wrappers.JavaLogWrapper;
+import net.xqhs.util.logging.wrappers.Log4JWrapper;
 
 /**
  * Use this abstract class to implement any [wrapper of a] logging structure that is returned by {@link Logging}.
@@ -22,52 +23,75 @@ import net.xqhs.util.logging.Logger.Level;
  * All types of wrappers available in the project should be stated in {@link LoggerType}.
  * <p>
  * It should work with a reduced set of levels (see {@link Level}).
- * <p>
- * When extending this class, there is an absolute need that only the <code>l</code> method is implemented. The
- * implementations in this class all end up by calling <code>l</code>.
  * 
  * @author Andrei Olaru
- * 
  */
-public abstract class Log
+public abstract class LogWrapper
 {
 	/**
-	 * Supported logger types. Wrappers for these will extend the {@link Log} class.
+	 * Logger types included with this library. Wrappers for these will extend the {@link LogWrapper} class.
 	 * 
 	 * @author Andrei Olaru
-	 * 
 	 */
 	public static enum LoggerType {
-		LOG4J("tatami.pc.util.logging.Log4JWrapper"),
+		/**
+		 * The Log4J wrapper implementation.
+		 */
+		LOG4J(Log4JWrapper.class.getName()),
 		
-		JADE("tatami.core.util.logging.JadeLogWrapper"),
+		/**
+		 * The Java wrapper implementation.
+		 */
+		JAVA(JavaLogWrapper.class.getName()),
 		
-		JAVA("tatami.core.util.logging.JavaLogWrapper")
+		/**
+		 * The implementation is of another type than the ones in the enumeration.
+		 */
+		OTHER(null),
 		
 		;
 		
+		/**
+		 * The name of the wrapper class.
+		 */
 		String	className;
 		
+		/**
+		 * Default constructor.
+		 * 
+		 * @param className
+		 *            - the name of the class of the wrapper.
+		 */
 		private LoggerType(String className)
 		{
 			this.className = className;
 		}
 		
+		/**
+		 * @return the name of the class of the wrapper.
+		 */
 		public String getClassName()
 		{
 			return className;
 		}
 	}
 	
-	protected Level	DEFAULT_LEVEL	= Level.INFO;
-	
+	/**
+	 * Sets the level of the underlying log to a level that corresponds to the given instance of {@link Level},
+	 * according to the implementation.
+	 * 
+	 * @param level
+	 *            - the desired log level.
+	 */
 	public abstract void setLevel(Level level);
 	
 	/**
+	 * Instructs the underlying log to add a destination for its output. Currently meant for use with Log4J.
+	 * 
 	 * @param format
-	 *            : a pattern, in a format that is potentially characteristic to the wrapper
+	 *            - a pattern, in a format that is potentially characteristic to the wrapper.
 	 * @param destination
-	 *            : a destination stream
+	 *            - a destination stream.
 	 */
 	protected abstract void addDestination(String format, OutputStream destination);
 	
@@ -75,10 +99,16 @@ public abstract class Log
 	 * The logging function to override in the implementation of the class.
 	 * 
 	 * @param level
-	 *            : the {@link Level} of the message.
+	 *            - the {@link Level} of the message, that will be translated to an equivalent level of the underlying
+	 *            log.
 	 * @param message
-	 *            : the message.
+	 *            - the logging message.
 	 */
 	public abstract void l(Level level, String message);
+
+	/**
+	 * Instructs the underlying infrastructure to clear any information and actions related to this log.
+	 */
+	public abstract void exit();
 	
 }

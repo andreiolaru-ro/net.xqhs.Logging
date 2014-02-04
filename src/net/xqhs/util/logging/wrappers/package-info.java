@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2013 Andrei Olaru.
+ * Copyright (C) 2014 Andrei Olaru.
  * 
  * This file is part of Logging.
  * 
@@ -9,38 +9,8 @@
  * 
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.xqhs.util.logging;
-
-
 /**
- * The class extends {@link UnitExt} to implement all methods required by the {@link Logger} interface and expose all
- * methods as public.
- * 
- * @author Andrei Olaru
+ * This package contains a default set of wrappers for some well-known logging infrastructures.
  */
-public class UnitComponentExt extends UnitComponent implements Logger
-{
-	@Override
-	public void error(String message, Object... arguments)
-	{
-		le(message, arguments);
-	}
-	
-	@Override
-	public void warn(String message, Object... arguments)
-	{
-		lw(message, arguments);
-	}
-	
-	@Override
-	public void info(String message, Object... arguments)
-	{
-		li(message, arguments);
-	}
-	
-	@Override
-	public void trace(String message, Object... arguments)
-	{
-		lf(message, arguments);
-	}
-}
+package net.xqhs.util.logging.wrappers;
+

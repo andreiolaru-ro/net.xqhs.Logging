@@ -13,10 +13,16 @@ package testing;
 
 import java.io.OutputStream;
 
-import net.xqhs.util.logging.Log;
-import net.xqhs.util.logging.Logger.Level;
+import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.logging.LogWrapper;
 
-public class ConsoleWrapper extends Log
+/**
+ * Test-destined {@link LogWrapper} implementation that uses the system console.
+ * 
+ * @author Andrei Olaru
+ */
+@SuppressWarnings("javadoc")
+public class ConsoleWrapper extends LogWrapper
 {
 	
 	Level currentLevel = Level.ERROR;
@@ -38,5 +44,11 @@ public class ConsoleWrapper extends Log
 	{
 		if(level.compareTo(currentLevel) >= 0)
 			System.out.println("[" + level.toString() + "][" + message + "]");
+	}
+
+	@Override
+	public void exit()
+	{
+		// nothing to do
 	}
 }

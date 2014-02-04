@@ -11,22 +11,43 @@
  ******************************************************************************/
 package net.xqhs.util.logging.wrappers;
 
-
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
-import net.xqhs.util.logging.Log;
-import net.xqhs.util.logging.Logger.Level;
+import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.logging.LogWrapper;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 
-
-
-public class Log4JWrapper extends Log
+/**
+ * A {@link LogWrapper} implementation wrapping Apache's Log4J logger.
+ * 
+ * @author Andrei Olaru
+ */
+public class Log4JWrapper extends LogWrapper
 {
-	protected Logger	theLog	= null;
+	/**
+	 * The underlying logger.
+	 */
+	protected Logger		theLog		= null;
 	
+	/**
+	 * Set of appenders for this log.
+	 */
+	@SuppressWarnings("unused")
+	// type arguments required by Java 1.6
+	protected Set<Appender>	appenders	= new HashSet<Appender>();
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param name
+	 *            - the name of the log.
+	 */
 	public Log4JWrapper(String name)
 	{
 		theLog = Logger.getLogger(name);
@@ -35,15 +56,24 @@ public class Log4JWrapper extends Log
 	@Override
 	public void setLevel(Level level)
 	{
-		theLog.setLevel(org.apache.log4j.Level.toLevel(level.toString()));
+		theLog.setLevel(toWrapedLevel(level));
 	}
 	
 	@Override
 	public void addDestination(String format, OutputStream destination)
 	{
-		theLog.addAppender(new WriterAppender(new PatternLayout(format), destination));		
+		Appender appender = new WriterAppender(new PatternLayout(format), destination);
+		theLog.addAppender(appender);
+		appenders.add(appender);
 	}
-
+	
+	/**
+	 * Converts {@link Level} to {@link org.apache.log4j.Level}.
+	 * 
+	 * @param level
+	 *            - the level to convert.
+	 * @return - the resulting level.
+	 */
 	protected static org.apache.log4j.Level toWrapedLevel(Level level)
 	{
 		switch(level)
@@ -64,10 +94,19 @@ public class Log4JWrapper extends Log
 			return org.apache.log4j.Level.INFO;
 		}
 	}
+	
 	@Override
 	public void l(Level level, String message)
 	{
 		theLog.log(toWrapedLevel(level), message);
+	}
+	
+	@Override
+	public void exit()
+	{
+		theLog.setLevel(org.apache.log4j.Level.OFF);
+		for(Appender appender : appenders)
+			theLog.removeAppender(appender);
 	}
 	
 }
