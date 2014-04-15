@@ -17,8 +17,6 @@ import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.logging.LogWrapper;
 import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.logging.Logging;
-import net.xqhs.util.logging.logging.Logging.DisplayEntity;
-import net.xqhs.util.logging.logging.Logging.ReportingEntity;
 
 /**
  * The Unit class should be extended by classes in which logging primitives should be available without calling a

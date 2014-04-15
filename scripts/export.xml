@@ -70,7 +70,7 @@
 			/>
 		</jar>
 		<jar destfile="deploy/java6/${project-name}-full.jar">
-			<zipgroupfileset dir="." includes="deploy/java6/${project-name}.jar" />
+			<zipgroupfileset dir="." includes="deploy/java6/${project-name}.jar,deploy/java6/Config.jar" />
 			<zipgroupfileset dir="." includes="lib/" excludes="lib/Config.jar" />
 		</jar>
 	</target>

@@ -22,6 +22,8 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.DisplayEntity;
+import net.xqhs.util.logging.ReportingEntity;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.logging.LogDebug.LogDebugItem;
@@ -57,48 +59,6 @@ import net.xqhs.util.logging.logging.LogDebug.LogDebugItem;
  */
 public class Logging
 {
-	/**
-	 * Interface for an entity / unit that keeps a log and that needs to report that log to other entities. Updates will
-	 * be posted at regular intervals of time, and will be incremental (a new post will contain all logging information
-	 * since the previous successful posting. The messages will contain timestamp, log name, level and content.
-	 * 
-	 * @author Andrei Olaru
-	 */
-	public interface ReportingEntity
-	{
-		/**
-		 * The method will be called at intervals of <code>reportUpdateDelay</code>, if new logging information exist
-		 * since the last call.
-		 * 
-		 * @param content
-		 *            - an update from the log containing the new logging information since the last call of this
-		 *            function.
-		 * @return true if the reporting has completed correctly. Otherwise, the same information will be reported again
-		 *         at the next call.
-		 */
-		public boolean report(String content);
-	}
-	
-	/**
-	 * Interface for an entity that is able to display the log (e.g. in a visual interface). Updates will be posted
-	 * immediately. The {@link #output(String)} method is called with the entire log as argument, using logging messages
-	 * with just the level ad the content.
-	 * 
-	 * @author Andrei Olaru
-	 * 
-	 */
-	public interface DisplayEntity
-	{
-		/**
-		 * The method is called whenever new logging information is posted.
-		 * 
-		 * @param string
-		 *            - the entire contents of the log.
-		 */
-		void output(String string);
-		
-	}
-	
 	/**
 	 * The default log wrapper, as one of {@link LoggerType}.
 	 */
