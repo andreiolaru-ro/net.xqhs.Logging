@@ -14,6 +14,7 @@ package net.xqhs.util.logging.logging;
 import java.io.OutputStream;
 
 import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.wrappers.ConsoleWrapper;
 import net.xqhs.util.logging.wrappers.JavaLogWrapper;
 import net.xqhs.util.logging.wrappers.Log4JWrapper;
 
@@ -34,6 +35,12 @@ public abstract class LogWrapper
 	 * @author Andrei Olaru
 	 */
 	public static enum LoggerType {
+		
+		/**
+		 * The implementation of a simple wrapper that outputs to the system console.
+		 */
+		CONSOLE(ConsoleWrapper.class.getName()),
+		
 		/**
 		 * The Log4J wrapper implementation.
 		 */

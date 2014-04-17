@@ -22,11 +22,9 @@ public class LogTester
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
-		// Logging.getMasterLogging().setLogLevel(Level.OFF);
+		Logging.getMasterLogging().setLogLevel(Level.ALL);
 		
 		String NAME = "log";
-		
-		// Logging.getMasterLogging().setUnitName(null);
 		
 		// non-recommended use
 		System.out.println("\n\n=================== PART 1 ====================\n\n");

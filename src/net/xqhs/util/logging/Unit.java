@@ -233,13 +233,11 @@ public class Unit extends Config
 		unitName = name; // special cases for the unit name (default unit name) below
 		
 		if((unitName == null) && (!DEFAULT_UNIT_NAME.equals(getDefaultUnitName())))
-		{// the inheriting class has overridden the getDefaultUnitName() method
+			// the inheriting class has overridden the getDefaultUnitName() method
 			unitName = getDefaultUnitName(); // this works around the setter, which now has been locked
-			setLogLevel(DEFAULT_LEVEL);
-		}
-		
+			
 		if(DEFAULT_UNIT_NAME.equals(unitName))
-		{
+		{ // class name should be used
 			unitName = makeClassName(useLongClassName);
 			logName = unitName;
 		}
@@ -250,6 +248,9 @@ public class Unit extends Config
 				logName = makeClassName(useLongClassName) + unitName;
 		else
 			logName = unitName;
+		if((logName != null) && (level == null))
+			// set default level
+			setLogLevel(DEFAULT_LEVEL);
 		
 		return this;
 	}
@@ -285,17 +286,14 @@ public class Unit extends Config
 	 * Sets the type of the logging infrastructure and wrapper used by this unit.
 	 * 
 	 * @param loggerType
-	 *            - the type of logging infrastructure.
+	 *            - the type of logging infrastructure, as one of {@link LoggerType}.
 	 * @return the instance itself.
 	 */
 	public Unit setLoggerType(LoggerType loggerType)
 	{
-		if(lockedR())
-			return this;
-		loggerWrapperType = loggerType;
-		if(loggerWrapperType != LoggerType.OTHER)
-			setLoggerClass(loggerWrapperType.getClassName());
-		return this;
+		if(loggerType == null)
+			throw new IllegalArgumentException("Given logger type is null");
+		return setLoggerTypeClass(loggerType, null);
 	}
 	
 	/**
@@ -307,13 +305,42 @@ public class Unit extends Config
 	 */
 	public Unit setLoggerClass(String className)
 	{
+		if(className == null)
+			throw new IllegalArgumentException("Given class is null");
+		return setLoggerTypeClass(null, className);
+	}
+	
+	/**
+	 * Setter for the logger type / logger wrapper class. They are interdependent and therefore must be set
+	 * simultaneously. The arguments, however, cannot be both not null at the same time. FIXME
+	 * 
+	 * @param loggerType
+	 *            -- the type of the wrapper, as one of {@link LoggerType}.
+	 * @param className
+	 *            -- the class of a {@link LogWrapper} implementation.
+	 * @return the instance itself.
+	 */
+	protected Unit setLoggerTypeClass(LoggerType loggerType, String className)
+	{
 		if(lockedR())
 			return this;
-		loggerWrapperClass = className;
-		for(LoggerType wrapper : LoggerType.values())
-			if(className.equals(wrapper.getClassName()))
-				return setLoggerType(loggerWrapperType);
-		return setLoggerType(LoggerType.OTHER);
+		if((loggerType != null) && (className != null))
+			throw new IllegalArgumentException("cannot set the logger type and the class name at the same time.");
+		if(loggerType != null)
+		{
+			loggerWrapperType = loggerType;
+			if(loggerWrapperType != LoggerType.OTHER)
+				loggerWrapperClass = loggerType.getClassName();
+		}
+		if(className != null)
+		{
+			loggerWrapperClass = className;
+			for(LoggerType wrapper : LoggerType.values())
+				if(className.equals(wrapper.getClassName()))
+					loggerWrapperType = wrapper;
+			loggerWrapperType = LoggerType.OTHER;
+		}
+		return this;
 	}
 	
 	/**
