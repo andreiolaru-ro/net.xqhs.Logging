@@ -26,6 +26,9 @@
 	</path>
 
 	<target name="build-java6">
+		<delete>
+			<fileset dir="${build}" />
+		</delete>
 		<javac srcdir="${src}"
 		       destdir="${build}"
 		       fork="true"
