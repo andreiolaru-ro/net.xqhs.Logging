@@ -92,7 +92,7 @@ public class Logging
 	 * <p>
 	 * Will automatically start and stop when the first log is created / when the last log exists.
 	 */
-	protected static UnitComponent			masterLog				= null;
+	protected static UnitComponent			masterLog				= new UnitComponent();
 	/**
 	 * The name for the log held by {@link #masterLog}.
 	 */
@@ -212,7 +212,6 @@ public class Logging
 		
 		if((masterLog == null) || (masterLog.getUnitName() == null)) // avoid recursion
 		{
-			masterLog = new UnitComponent();
 			masterLog.setUnitName(masterLogName);
 			masterLog.lock();
 		}
@@ -410,28 +409,35 @@ public class Logging
 			throw (new IllegalStateException());
 		
 		logger.setLevel(logLevel);
-		// level, message: for DisplayEntity
-		logger.addDestination("%-5p \t %m%n", logOutput);
-		// date level name message (no new line): for ReportingEntity (also, obscure reference)
-		logger.addDestination(AWESOME_SEPARATOR + "%d{HH:mm:ss:SSSS} %-5p [" + logName + "]:\t %m" + AWESOME_SEPARATOR,
-				logOutputStamped);
-		// priority (level), name, message, line break: for console
+		
+		String formatDisplay = null;
+		String formatReporter = null;
+		String formatConsole = null;
 		switch(wrapperType)
 		{
 		case LOG4J:
-			logger.addDestination("%-5p [" + logName + "]:\t %m%n", System.out);
+			// level, message: for DisplayEntity
+			formatDisplay = "%-5p \t %m%n";
+			// date level name message (no new line): for ReportingEntity (also, obscure reference)
+			formatReporter = AWESOME_SEPARATOR + "%d{HH:mm:ss:SSSS} %-5p [" + logName + "]:\t %m" + AWESOME_SEPARATOR;
+			// priority (level), name, message, line break: for console
+			formatConsole = "%-5p [" + logName + "]:\t %m%n";
 			break;
+		case CONSOLE:
 		case JAVA:
-			logger.addDestination(null, System.out);
-			break;
 		case OTHER:
 			// TODO
 			break;
 		}
 		
 		logDisplay = display;
-		
 		externalReporter = reporter;
+		
+		if(logDisplay != null)
+			logger.addDestination(formatDisplay, logOutput);
+		if(externalReporter != null)
+			logger.addDestination(formatReporter, logOutputStamped);
+		logger.addDestination(formatConsole, System.out);
 		
 		if((logDisplay != null) || (externalReporter != null))
 		{

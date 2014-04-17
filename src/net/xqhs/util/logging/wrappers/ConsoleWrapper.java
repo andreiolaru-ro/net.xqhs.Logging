@@ -9,7 +9,7 @@
  * 
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package testing;
+package net.xqhs.util.logging.wrappers;
 
 import java.io.OutputStream;
 
@@ -17,14 +17,15 @@ import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.logging.LogWrapper;
 
 /**
- * Test-destined {@link LogWrapper} implementation that uses the system console.
+ * Simple, basic {@link LogWrapper} implementation that uses the system console to output logging messages.
  * 
  * @author Andrei Olaru
  */
-@SuppressWarnings("javadoc")
 public class ConsoleWrapper extends LogWrapper
 {
-	
+	/**
+	 * The current level for the log.
+	 */
 	Level currentLevel = Level.ERROR;
 	
 	@Override
@@ -37,6 +38,8 @@ public class ConsoleWrapper extends LogWrapper
 	public void addDestination(String format, OutputStream destination)
 	{
 		// unsupported
+		if(Level.ERROR.compareTo(currentLevel) >= 0)
+			System.out.println("[" + Level.ERROR.toString() + "][Alternate destinations not supported]");
 	}
 	
 	@Override
