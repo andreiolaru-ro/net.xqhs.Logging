@@ -51,6 +51,7 @@ public class Log4JWrapper extends LogWrapper
 	public Log4JWrapper(String name)
 	{
 		theLog = Logger.getLogger(name);
+//		theLog.setAdditivity(false); // see exit()
 	}
 	
 	@Override
@@ -105,8 +106,9 @@ public class Log4JWrapper extends LogWrapper
 	public void exit()
 	{
 		theLog.setLevel(org.apache.log4j.Level.OFF);
-		for(Appender appender : appenders)
-			theLog.removeAppender(appender);
+		// TODO: cannot remove appenders because they get removed for other logs as well.
+//		for(Appender appender : appenders)
+//			theLog.removeAppender(appender);
 	}
 	
 }

@@ -26,7 +26,21 @@ public class ConsoleWrapper extends LogWrapper
 	/**
 	 * The current level for the log.
 	 */
-	Level currentLevel = Level.ERROR;
+	Level	currentLevel	= Level.ERROR;
+	/**
+	 * The name fo the log.
+	 */
+	String	name			= null;
+	
+	/**
+	 * Creates a new console wrapper log, with the specified name.
+	 * 
+	 * @param logName - the name of the log to be created.
+	 */
+	public ConsoleWrapper(String logName)
+	{
+		name = logName;
+	}
 	
 	@Override
 	public void setLevel(Level level)
@@ -39,16 +53,16 @@ public class ConsoleWrapper extends LogWrapper
 	{
 		// unsupported
 		if(Level.ERROR.compareTo(currentLevel) >= 0)
-			System.out.println("[" + Level.ERROR.toString() + "][Alternate destinations not supported]");
+			System.out.println("[" + Level.ERROR.toString() + "][" + name + "]: Alternate destinations not supported.");
 	}
 	
 	@Override
 	public void l(Level level, String message)
 	{
-		if(level.compareTo(currentLevel) >= 0)
-			System.out.println("[" + level.toString() + "][" + message + "]");
+		if(level.displayWith(currentLevel))
+			System.out.println("[" + level.toString() + "][" + name + "]: " + message);
 	}
-
+	
 	@Override
 	public void exit()
 	{

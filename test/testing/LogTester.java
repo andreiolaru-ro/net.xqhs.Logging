@@ -53,7 +53,8 @@ public class LogTester
 		
 		System.out.println("\n\n=================== PART 2 ====================\n\n");
 		
-		UnitComponent testUnit = (UnitComponent) new UnitComponent().setLogLevel(Level.WARN);
+		UnitComponent testUnit = (UnitComponent) new UnitComponent().setLogLevel(Level.WARN).setLoggerType(
+				LoggerType.CONSOLE);
 		// testUnit.setUnitName(NAME + "|", true, true);
 		// testUnit.setUnitName(Unit.DEFAULT_UNIT_NAME);
 		testUnit.setUnitName(NAME);
