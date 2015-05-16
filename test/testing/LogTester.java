@@ -11,6 +11,7 @@
  ******************************************************************************/
 package testing;
 
+import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.logging.LogWrapper;
@@ -20,6 +21,31 @@ import net.xqhs.util.logging.logging.Logging;
 @SuppressWarnings("javadoc")
 public class LogTester
 {
+	enum LocalDebug implements DebugItem
+	{
+		DO_DEBUG(true)
+		
+		;
+		
+		boolean value;
+		
+		private LocalDebug(boolean value)
+		{
+			this.value = value;
+		}
+		
+		@Override
+		public boolean toBool()
+		{
+			return value;
+		}
+	}
+	
+	public static String someMethod(UnitComponent log)
+	{
+		return (String) log.lr("test", "i am [] here", "standing");
+	}
+	
 	public static void main(String[] args) throws ClassNotFoundException
 	{
 		Logging.getMasterLogging().setLogLevel(Level.ALL);
@@ -53,7 +79,7 @@ public class LogTester
 		
 		System.out.println("\n\n=================== PART 2 ====================\n\n");
 		
-		UnitComponent testUnit = (UnitComponent) new UnitComponent().setLogLevel(Level.WARN).setLoggerType(
+		UnitComponent testUnit = (UnitComponent) new UnitComponent().setLogLevel(Level.ALL).setLoggerType(
 				LoggerType.CONSOLE);
 		// testUnit.setUnitName(NAME + "|", true, true);
 		// testUnit.setUnitName(Unit.DEFAULT_UNIT_NAME);
@@ -63,6 +89,12 @@ public class LogTester
 		testUnit.li("info");
 		
 		testUnit.setUnitName("hello");
+		
+		someMethod(testUnit);
+		testUnit.dbg(LocalDebug.DO_DEBUG, "debug with this [] argument", "my");
+		
+		testUnit.setLogLevel(Level.ERROR);
+		testUnit.li("THIS SHOULD NOT SHOW UP");
 		
 		testUnit.doExit();
 		

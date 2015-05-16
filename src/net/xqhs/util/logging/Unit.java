@@ -518,8 +518,10 @@ public class Unit extends Config
 	 */
 	protected Object lr(Object ret, String message, Object... arguments)
 	{
-		lf(LoggerSimple.ARGUMENT_BEGIN + ((ret != null) ? ret.toString() : "null") + LoggerSimple.ARGUMENT_END
-				+ (message != null ? ":[" + message + "]" : ""));
+		if(message != null)
+			lf("[]: []", ret, compose(message, arguments));
+		else
+			lf("[]", ret);
 		return ret;
 	}
 	
@@ -537,7 +539,7 @@ public class Unit extends Config
 	protected void dbg(DebugItem debug, String message, Object... arguments)
 	{
 		if(debug.toBool())
-			lf(message);
+			lf(message, arguments);
 	}
 	
 	/**

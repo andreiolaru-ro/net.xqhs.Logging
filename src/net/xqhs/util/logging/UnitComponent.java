@@ -54,7 +54,7 @@ public class UnitComponent extends Unit implements LoggerSimple
 	@Override
 	public void dbg(DebugItem debug, String message, Object... arguments)
 	{
-		super.dbg(debug, message);
+		super.dbg(debug, message, arguments);
 	}
 	
 	@Override
