@@ -12,6 +12,8 @@
 package testing;
 
 import net.xqhs.util.logging.Debug.DebugItem;
+import net.xqhs.util.logging.DumbLogger;
+import net.xqhs.util.logging.Logger;
 import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.logging.LogWrapper;
@@ -98,7 +100,13 @@ public class LogTester
 		
 		testUnit.doExit();
 		
-		testUnit.le("error out");
+		testUnit.le("THIS SHOULD NOT SHOW UP");
+		
+		System.out.println("\n\n=================== PART 3 ====================\n\n");
+		
+		Logger simpleLog = DumbLogger.get();
+		simpleLog.le("some error", "some argument");
+		simpleLog.dbg(LocalDebug.DO_DEBUG, "some debug");
 		
 		try
 		{
