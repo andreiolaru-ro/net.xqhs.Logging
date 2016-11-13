@@ -58,7 +58,7 @@ public class LogTester
 		System.out.println("\n\n=================== PART 1 ====================\n\n");
 		
 		LogWrapper log1 = Logging.getLogger(NAME, null, null, null, true, null, null);
-		LogWrapper log2 = Logging.getLogger(NAME + "-J", NAME, null, null, true, LoggerType.JAVA.getClassName(),
+		LogWrapper log2 = Logging.getLogger(NAME + "-J", NAME, null, null, true, LoggerType.JAVA,
 				Level.INFO);
 		log1.setLevel(Level.INFO);
 		

@@ -39,48 +39,20 @@ public abstract class LogWrapper
 		/**
 		 * The implementation of a simple wrapper that outputs to the system console.
 		 */
-		CONSOLE(ConsoleWrapper.class.getName()),
+		CONSOLE,
 		
 		/**
 		 * The Log4J wrapper implementation.
 		 */
-		LOG4J(Log4JWrapper.class.getName()),
+		LOG4J,
 		
 		/**
 		 * The Java wrapper implementation.
 		 */
-		JAVA(JavaLogWrapper.class.getName()),
-		
-		/**
-		 * The implementation is of another type than the ones in the enumeration.
-		 */
-		OTHER(null),
+		JAVA
 		
 		;
 		
-		/**
-		 * The name of the wrapper class.
-		 */
-		String	className;
-		
-		/**
-		 * Default constructor.
-		 * 
-		 * @param className
-		 *            - the name of the class of the wrapper.
-		 */
-		private LoggerType(String className)
-		{
-			this.className = className;
-		}
-		
-		/**
-		 * @return the name of the class of the wrapper.
-		 */
-		public String getClassName()
-		{
-			return className;
-		}
 	}
 	
 	/**

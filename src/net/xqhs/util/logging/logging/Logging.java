@@ -26,6 +26,7 @@ import net.xqhs.util.logging.DisplayEntity;
 import net.xqhs.util.logging.ReportingEntity;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
+import net.xqhs.util.logging.wrappers.factory.WrapperFactory;
 import net.xqhs.util.logging.logging.LogDebug.LogDebugItem;
 
 /**
@@ -106,7 +107,7 @@ public class Logging
 	/**
 	 * The class of the implementation for the log wrapper.
 	 */
-	protected String						wrapperClass			= null;
+	//protected String						wrapperClass			= null;
 	/**
 	 * The type of the implementation for the log wrapper, as an instance of {@link LoggerType}.
 	 */
@@ -205,7 +206,7 @@ public class Logging
 	 *             : if the name is not new and <code>ensureNew</code> was set to <code>true</code>.
 	 */
 	public static LogWrapper getLogger(String name, String link, DisplayEntity display, ReportingEntity reporter,
-			boolean ensureNew, String logWrapperClass, Level level) throws ClassNotFoundException
+			boolean ensureNew, LoggerType logWrapperType, Level level) throws ClassNotFoundException
 	{
 		boolean erred = false;
 		int nlogs = -1;
@@ -223,7 +224,7 @@ public class Logging
 		masterLog.dbg(LogDebugItem.D_LOG_MANAGEMENT, "required: [" + name + "]" + (ensureNew ? "[new]" : "")
 				+ "; existing: [" + logs.size() + "]: [" + logs + "]");
 		
-		Logging thelog = new Logging(name, logWrapperClass, display, reporter);
+		Logging thelog = new Logging(name, logWrapperType, display, reporter);
 		Logging alreadyPresent = null;
 		synchronized(logs)
 		{
@@ -371,7 +372,7 @@ public class Logging
 	 * @throws ClassNotFoundException
 	 *             - if the wrapper class cannot be found or instantiated.
 	 */
-	protected Logging(String logName, String loggerClass, DisplayEntity display, ReportingEntity reporter)
+	protected Logging(String logName, LoggerType loggerClass, DisplayEntity display, ReportingEntity reporter)
 			throws ClassNotFoundException
 	{
 		name = logName;
@@ -381,29 +382,12 @@ public class Logging
 		if(loggerClass == null)
 		{
 			wrapperType = defaultLoggerWrapper;
-			wrapperClass = defaultLoggerWrapper.getClassName();
 		}
-		else
-		{
-			for(LoggerType wrapper : LoggerType.values())
-				if(loggerClass.equals(wrapper.getClassName()))
-					wrapperType = wrapper;
-			wrapperClass = loggerClass;
+		else{
+		    wrapperType = loggerClass;
 		}
-		
-		// instantiate wrapper
-		ClassLoader cl = null;
-		cl = new ClassLoader(this.getClass().getClassLoader()) {
-			// nothing to extend
-		};
-		try
-		{
-			Constructor<?> constructor = cl.loadClass(wrapperClass).getConstructor(String.class);
-			logger = (LogWrapper) constructor.newInstance(name);
-		} catch(Exception e)
-		{
-			throw new ClassNotFoundException("Wrapper class cannot be instantiated.", e);
-		}
+
+		logger = WrapperFactory.getInst().newInst(wrapperType, name);
 		
 		if(logger == null)
 			throw (new IllegalStateException());
@@ -425,7 +409,7 @@ public class Logging
 			break;
 		case CONSOLE:
 		case JAVA:
-		case OTHER:
+		default:
 			// TODO
 			break;
 		}

@@ -94,7 +94,7 @@ public class Unit extends Config
 	 * The class of the logging wrapper that will be used (used only if different from the default types specified by
 	 * {@link LoggerType}.
 	 */
-	String						loggerWrapperClass	= null;
+	//String						loggerWrapperClass	= null;
 	
 	/**
 	 * Information on linking the behavior of this log to other logs. TODO.
@@ -166,7 +166,7 @@ public class Unit extends Config
 			try
 			{
 				log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew,
-						loggerWrapperClass, level);
+				        loggerWrapperType, level);
 			} catch(ClassNotFoundException e)
 			{
 				throw new IllegalArgumentException("Failed to instantiate logging wrapper class.", e);
@@ -324,22 +324,10 @@ public class Unit extends Config
 	{
 		if(lockedR())
 			return this;
-		if((loggerType != null) && (className != null))
-			throw new IllegalArgumentException("cannot set the logger type and the class name at the same time.");
-		if(loggerType != null)
-		{
-			loggerWrapperType = loggerType;
-			if(loggerWrapperType != LoggerType.OTHER)
-				loggerWrapperClass = loggerType.getClassName();
-		}
-		if(className != null)
-		{
-			loggerWrapperClass = className;
-			for(LoggerType wrapper : LoggerType.values())
-				if(className.equals(wrapper.getClassName()))
-					loggerWrapperType = wrapper;
-			loggerWrapperType = LoggerType.OTHER;
-		}
+		if((loggerType == null))
+			throw new IllegalArgumentException("Logger type cannot be null");
+
+		loggerWrapperType = loggerType;
 		return this;
 	}
 	
