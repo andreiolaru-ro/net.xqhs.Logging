@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2014 Andrei Olaru.
+ * Copyright (C) 2018 Andrei Olaru.
  * 
  * This file is part of Logging.
  * 
