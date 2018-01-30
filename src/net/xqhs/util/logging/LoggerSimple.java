@@ -42,7 +42,7 @@ import net.xqhs.util.logging.Debug.DebugItem;
 public interface LoggerSimple
 {
 	/**
-	 * Indicates the level of the log. Mimics {@link org.apache.log4j.Level}.
+	 * Indicates the level of the log. Mimics the level in Log4j.
 	 * <p>
 	 * When calling the wrapped logger, the level will be mapped to a value supported by the wrapped logger, depending
 	 * on the wrapper implementation.

@@ -18,7 +18,6 @@
 	<path id="build.classpath">
 		<fileset dir="lib/">
 			<include name="*.jar" />
-			<exclude name="Config.jar" />
 		</fileset>
 		<fileset dir="deploy/java6/">
 			<include name="*.jar" />

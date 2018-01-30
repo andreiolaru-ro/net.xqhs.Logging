@@ -12,7 +12,6 @@
 package net.xqhs.util.logging.logging;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,12 +20,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.DisplayEntity;
+import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.ReportingEntity;
 import net.xqhs.util.logging.UnitComponent;
-import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.logging.LogDebug.LogDebugItem;
+import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
+import net.xqhs.util.logging.wrappers.LogWrapperFactory;
 
 /**
  * Implements the configuring entity and manager for logs. The idea is to have standard logs and wrappers, but with some
@@ -62,7 +62,7 @@ public class Logging
 	/**
 	 * The default log wrapper, as one of {@link LoggerType}.
 	 */
-	public static final LoggerType			defaultLoggerWrapper	= LoggerType.LOG4J;
+	public static final LoggerType			defaultLoggerWrapper	= LoggerType.CONSOLE;
 	
 	/**
 	 * A special character that is used to separate log lines when sending log output to the reporting entity.
@@ -199,13 +199,11 @@ public class Logging
 	 *            : the initial level of the log, as an instance of {@link Level}.
 	 * @return A new, configured, {@link LogWrapper} instance; or an existing instance if the same name already existed
 	 *         and <code>ensureNew</code> was set to <code>false</code>.
-	 * @throws ClassNotFoundException
-	 *             : if the wrapper class cannot be found or instantiated.
 	 * @throws IllegalArgumentException
 	 *             : if the name is not new and <code>ensureNew</code> was set to <code>true</code>.
 	 */
 	public static LogWrapper getLogger(String name, String link, DisplayEntity display, ReportingEntity reporter,
-			boolean ensureNew, String logWrapperClass, Level level) throws ClassNotFoundException
+			boolean ensureNew, String logWrapperClass, Level level)
 	{
 		boolean erred = false;
 		int nlogs = -1;
@@ -368,11 +366,8 @@ public class Logging
 	 *            - the {@link DisplayEntity} to use.
 	 * @param reporter
 	 *            - the {@link ReportingEntity} to use.
-	 * @throws ClassNotFoundException
-	 *             - if the wrapper class cannot be found or instantiated.
 	 */
 	protected Logging(String logName, String loggerClass, DisplayEntity display, ReportingEntity reporter)
-			throws ClassNotFoundException
 	{
 		name = logName;
 		logOutput = new ByteArrayOutputStream();
@@ -381,29 +376,16 @@ public class Logging
 		if(loggerClass == null)
 		{
 			wrapperType = defaultLoggerWrapper;
-			wrapperClass = defaultLoggerWrapper.getClassName();
 		}
 		else
 		{
 			for(LoggerType wrapper : LoggerType.values())
 				if(loggerClass.equals(wrapper.getClassName()))
 					wrapperType = wrapper;
-			wrapperClass = loggerClass;
 		}
 		
 		// instantiate wrapper
-		ClassLoader cl = null;
-		cl = new ClassLoader(this.getClass().getClassLoader()) {
-			// nothing to extend
-		};
-		try
-		{
-			Constructor<?> constructor = cl.loadClass(wrapperClass).getConstructor(String.class);
-			logger = (LogWrapper) constructor.newInstance(name);
-		} catch(Exception e)
-		{
-			throw new ClassNotFoundException("Wrapper class cannot be instantiated.", e);
-		}
+		logger = LogWrapperFactory.getLogWrapper(wrapperType, name);
 		
 		if(logger == null)
 			throw (new IllegalStateException());
@@ -416,6 +398,7 @@ public class Logging
 		switch(wrapperType)
 		{
 		case LOG4J:
+			// deprecated, kept for future reference
 			// level, message: for DisplayEntity
 			formatDisplay = "%-5p \t %m%n";
 			// date level name message (no new line): for ReportingEntity (also, obscure reference)

@@ -163,14 +163,8 @@ public class Unit extends Config
 		super.lock();
 		
 		if(unitName != null && logName != null)
-			try
-			{
-				log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew,
-						loggerWrapperClass, level);
-			} catch(ClassNotFoundException e)
-			{
-				throw new IllegalArgumentException("Failed to instantiate logging wrapper class.", e);
-			}
+			log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew, loggerWrapperClass,
+					level);
 		
 		return this;
 	}

@@ -48,7 +48,7 @@ public class LogTester
 		return (String) log.lr("test", "i am [] here", "standing");
 	}
 	
-	public static void main(String[] args) throws ClassNotFoundException
+	public static void main(String[] args)
 	{
 		Logging.getMasterLogging().setLogLevel(Level.ALL);
 		
@@ -57,7 +57,7 @@ public class LogTester
 		// non-recommended use
 		System.out.println("\n\n=================== PART 1 ====================\n\n");
 		
-		LogWrapper log1 = Logging.getLogger(NAME, null, null, null, true, null, null);
+		LogWrapper log1 = Logging.getLogger(NAME, null, null, null, true, LoggerType.CONSOLE.getClassName(), null);
 		LogWrapper log2 = Logging.getLogger(NAME + "-J", NAME, null, null, true, LoggerType.JAVA.getClassName(),
 				Level.INFO);
 		log1.setLevel(Level.INFO);
