@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="true" generalizations="true" 
+<class-diagram version="1.1.14" icons="true" automaticImage="PNG" always-add-relationships="true" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="net.xqhs.util.logging.Debug" project="Logging" 
     file="/Logging/src/net/xqhs/util/logging/Debug.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="78" width="91" x="992" y="37"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
-      visibility="true">      
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
@@ -13,8 +13,8 @@
   <enumeration id="2" language="java" name="net.xqhs.util.logging.Debug.LocalDebugItem" project="Logging" 
     file="/Logging/src/net/xqhs/util/logging/Debug.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="129" width="146" x="941" y="410"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
-      visibility="true">      
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
@@ -22,8 +22,8 @@
   <class id="3" language="java" name="net.xqhs.util.logging.Unit" project="Logging" 
     file="/Logging/src/net/xqhs/util/logging/Unit.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="333" width="276" x="64" y="37"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
-      visibility="true">      
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
@@ -31,8 +31,8 @@
   <interface id="4" language="java" name="net.xqhs.util.logging.Debug.DebugItem" project="Logging" 
     file="/Logging/src/net/xqhs/util/logging/Debug.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="78" width="103" x="810" y="1540"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
-      visibility="true">      
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
@@ -40,8 +40,8 @@
   <class id="5" language="java" name="net.xqhs.util.logging.UnitComponent" project="Logging" 
     file="/Logging/src/net/xqhs/util/logging/UnitComponent.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="214" width="175" x="595" y="410"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
-      visibility="true">      
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
@@ -49,52 +49,53 @@
   <class id="6" language="java" name="testing.LogTester" project="Logging" file="/Logging/test/testing/LogTester.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="95" width="111" x="555" y="37"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
-      visibility="true">      
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
   <dependency id="7">    
     <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="5"/>  
+    <end type="TARGET" refId="3"/>  
   </dependency>  
-  <realization id="8">    
+  <generalization id="8">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <dependency id="9">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <nesting id="10">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
+  </nesting>  
+  <dependency id="11">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <realization id="12">    
     <bendpoint x="885" y="1082"/>    
     <end type="SOURCE" refId="2"/>    
     <end type="TARGET" refId="4"/>  
   </realization>  
-  <nesting id="9">    
+  <nesting id="13">    
     <bendpoint x="1117" y="410"/>    
     <bendpoint x="1117" y="1082"/>    
     <end type="SOURCE" refId="1"/>    
     <end type="TARGET" refId="4"/>  
   </nesting>  
-  <dependency id="10">    
-    <bendpoint x="94" y="410"/>    
-    <bendpoint x="349" y="1082"/>    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="4"/>  
-  </dependency>  
-  <nesting id="11">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="2"/>  
-  </nesting>  
-  <dependency id="12">    
-    <bendpoint x="798" y="1082"/>    
-    <end type="SOURCE" refId="5"/>    
-    <end type="TARGET" refId="4"/>  
-  </dependency>  
-  <dependency id="13">    
+  <dependency id="14">    
     <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="3"/>  
+    <end type="TARGET" refId="4"/>  
   </dependency>  
-  <generalization id="14">    
-    <end type="SOURCE" refId="5"/>    
-    <end type="TARGET" refId="3"/>  
-  </generalization>  
+  <dependency id="15">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
-    accessors="true" visibility="true">    
+    sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    
     <operations public="true" package="true" protected="true" private="true" static="true"/>  
   </classifier-display>  
