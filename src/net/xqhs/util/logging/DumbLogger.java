@@ -11,8 +11,6 @@
  ******************************************************************************/
 package net.xqhs.util.logging;
 
-import net.xqhs.util.logging.Debug.DebugItem;
-
 /**
  * This class acts as a simple implementation for the {@link Logger} interface, not connected to any of the actual
  * Logging infrastructure.
@@ -31,7 +29,7 @@ import net.xqhs.util.logging.Debug.DebugItem;
  * 
  * @author Andrei Olaru
  */
-public class DumbLogger implements Logger
+public class DumbLogger extends BaseLogger
 {
 	/**
 	 * The static instance.
@@ -68,85 +66,17 @@ public class DumbLogger implements Logger
 	{
 		return staticInstance;
 	}
-	
-	/**
-	 * The method called by the other methods in the class, to actually print out logging messages.
-	 * 
-	 * @param message
-	 *            - the message.
-	 * @param arguments
-	 *            - the arguments to put wherever {@value LoggerSimple#ARGUMENT_PLACEHOLDER} appears in the message.
-	 */
-	protected void l(String message, Object... arguments)
-	{
-		System.out.println(pre + " " + Unit.compose(message, arguments));
-	}
-	
-	@Override
-	public void le(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
-	@Override
-	public void lw(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
-	@Override
-	public void li(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
-	@Override
-	public void lf(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
-	@Override
-	public Object lr(Object ret)
-	{
-		return ret;
-	}
-	
+
 	@Override
 	public Object lr(Object ret, String message, Object... arguments)
 	{
-		l(message, arguments);
+		l(null, message, arguments);
 		return ret;
 	}
-	
+
 	@Override
-	public void dbg(DebugItem debug, String message, Object... arguments)
+	protected void l(Level messageLevel, String message, Object... arguments)
 	{
-		l(message, arguments);
+		System.out.println(pre + " " + Unit.compose(message, arguments));
 	}
-	
-	@Override
-	public void error(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
-	@Override
-	public void warn(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
-	@Override
-	public void info(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
-	@Override
-	public void trace(String message, Object... arguments)
-	{
-		l(message, arguments);
-	}
-	
 }

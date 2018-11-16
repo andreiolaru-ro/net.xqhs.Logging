@@ -87,7 +87,7 @@ public interface LoggerSimple
 		/**
 		 * The priority of the level. The higher, the most important.
 		 */
-		int	priority;
+		int priority;
 		
 		/**
 		 * Creates a new level, with a set priority.
@@ -209,11 +209,28 @@ public interface LoggerSimple
 	 *            will be replaced with instances in <code>arguments</code>, in the order in which they appear, by
 	 *            calling their {@link Object#toString()} method.
 	 * @param arguments
-	 *            : : the arguments to be placed in the placeholders of the message string. Remaining arguments will be
+	 *            : the arguments to be placed in the placeholders of the message string. Remaining arguments will be
 	 *            added after the message.
 	 * @return the {@link Object} passed as argument.
 	 */
 	public Object lr(Object ret, String message, Object... arguments);
+	
+	/**
+	 * This method should be used in return statements for error cases. It adds an error log message just before
+	 * returning the value in the first argument.
+	 * 
+	 * @param ret
+	 *            : the value to return.
+	 * @param message
+	 *            : the message to display. {@link Level#ERROR} will be used. Apparitions of the
+	 *            {@link #ARGUMENT_PLACEHOLDER} will be replaced with instances in <code>arguments</code>, in the order
+	 *            in which they appear, by calling their {@link Object#toString()} method.
+	 * @param arguments
+	 *            : the arguments to be placed in the placeholders of the message string. Remaining arguments will be
+	 *            added after the message.
+	 * @return the {@link Object} passed as argument.
+	 */
+	public boolean ler(boolean ret, String message, Object... arguments);
 	
 	/**
 	 * Outputs a fine logging message only if the specified {@link DebugItem} is activated.

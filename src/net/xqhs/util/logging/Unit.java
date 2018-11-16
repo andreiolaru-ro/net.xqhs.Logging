@@ -437,7 +437,7 @@ public class Unit extends Config
 	 * @param message
 	 *            : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple}.
+	 *            : arguments to insert into the message. See {@link LoggerSimple#le}.
 	 */
 	protected void le(String message, Object... arguments)
 	{
@@ -450,7 +450,7 @@ public class Unit extends Config
 	 * @param message
 	 *            : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple}.
+	 *            : arguments to insert into the message. See {@link LoggerSimple#lw}.
 	 */
 	protected void lw(String message, Object... arguments)
 	{
@@ -463,7 +463,7 @@ public class Unit extends Config
 	 * @param message
 	 *            : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple}.
+	 *            : arguments to insert into the message. See {@link LoggerSimple#li}.
 	 */
 	protected void li(String message, Object... arguments)
 	{
@@ -476,7 +476,7 @@ public class Unit extends Config
 	 * @param message
 	 *            : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple}.
+	 *            : arguments to insert into the message. See {@link LoggerSimple#lf}.
 	 */
 	protected void lf(String message, Object... arguments)
 	{
@@ -485,7 +485,7 @@ public class Unit extends Config
 	
 	/**
 	 * This method should be used in return statements. It adds a log message just before returning the {@link Object}
-	 * in the argument, displaying the {@link Object}. See {@link LoggerSimple}.
+	 * in the argument, displaying the {@link Object}. See {@link LoggerSimple#lr}.
 	 * 
 	 * @param ret
 	 *            : the {@link Object} to return.
@@ -503,11 +503,11 @@ public class Unit extends Config
 	 * The {@link Object} in the argument is also put in the log message.
 	 * 
 	 * @param ret
-	 *            : the {@link Object} to return and to display.
+	 *            : the {@link Object} to return and to display. {@link Level#TRACE} will be used.
 	 * @param message
 	 *            : the message to display beside the {@link Object}.
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple}.
+	 *            : arguments to insert into the message. See {@link LoggerSimple#lr}.
 	 * @return the {@link Object} passed as argument.
 	 */
 	protected Object lr(Object ret, String message, Object... arguments)
@@ -516,6 +516,24 @@ public class Unit extends Config
 			lf("[]: []", ret, compose(message, arguments));
 		else
 			lf("[]", ret);
+		return ret;
+	}
+	
+	/**
+	 * This method should be used in return statements for error cases. It adds an error log message just before
+	 * returning the value in the first argument. See {@link LoggerSimple}.
+	 * 
+	 * @param ret
+	 *            : the value to return.
+	 * @param message
+	 *            : the message to display. {@link Level#ERROR} will be used.
+	 * @param arguments
+	 *            : arguments to insert into the message. See {@link LoggerSimple#ler}.
+	 * @return the {@link Object} passed as argument.
+	 */
+	protected boolean ler(boolean ret, String message, Object... arguments)
+	{
+		le(message, arguments);
 		return ret;
 	}
 	
@@ -582,5 +600,29 @@ public class Unit extends Config
 			ret += LoggerSimple.ARGUMENT_BEGIN + objects[i] + LoggerSimple.ARGUMENT_END;
 		
 		return ret;
+	}
+	
+	/**
+	 * Use this method to obtain a Logger instance which relays all calls directly to this {@link Unit} instance. This
+	 * should be done when a Unit needs to expose its logger to some other instance.
+	 * 
+	 * @return a {@link Logger} instance that exposes the logging methods of this {@link Unit}.
+	 */
+	protected Logger getLogger()
+	{
+		return new BaseLogger() {
+			
+			@Override
+			public Object lr(Object ret, String message, Object... arguments)
+			{
+				return Unit.this.lr(ret, message, arguments);
+			}
+			
+			@Override
+			protected void l(Level messageLevel, String message, Object... arguments)
+			{
+				Unit.this.l(messageLevel, message, arguments);
+			}
+		};
 	}
 }

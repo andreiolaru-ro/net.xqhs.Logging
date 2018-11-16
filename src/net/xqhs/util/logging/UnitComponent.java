@@ -63,6 +63,12 @@ public class UnitComponent extends Unit implements LoggerSimple
 	}
 	
 	@Override
+	public boolean ler(boolean ret, String message, Object... arguments)
+	{
+		return super.ler(ret, message, arguments);
+	}
+	
+	@Override
 	public void dbg(DebugItem debug, String message, Object... arguments)
 	{
 		super.dbg(debug, message, arguments);

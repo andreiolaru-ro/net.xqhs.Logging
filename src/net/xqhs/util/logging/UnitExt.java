@@ -29,7 +29,7 @@ public class UnitExt extends Unit
 	 */
 	protected void error(String message, Object... arguments)
 	{
-		error(compose(message, arguments));
+		le(message, arguments);
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class UnitExt extends Unit
 	 */
 	protected void warn(String message, Object... arguments)
 	{
-		warn(compose(message, arguments));
+		lw(message, arguments);
 	}
 	
 	/**
@@ -51,7 +51,7 @@ public class UnitExt extends Unit
 	 */
 	protected void info(String message, Object... arguments)
 	{
-		info(compose(message, arguments));
+		li(message, arguments);
 	}
 	
 	/**
@@ -62,6 +62,6 @@ public class UnitExt extends Unit
 	 */
 	protected void trace(String message, Object... arguments)
 	{
-		trace(compose(message, arguments));
+		lf(message, arguments);
 	}
 }
