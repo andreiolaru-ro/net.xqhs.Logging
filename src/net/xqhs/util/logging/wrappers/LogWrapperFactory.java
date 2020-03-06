@@ -36,6 +36,8 @@ public class LogWrapperFactory
 			return new ConsoleWrapper(logName);
 		case JAVA:
 			return new JavaLogWrapper(logName);
+		case GLOBAL:
+			return new GlobalLogWrapper(logName);
 		default:
 			throw new UnsupportedOperationException("wrapper type " + loggerType + " not supported.");
 		}

@@ -11,12 +11,13 @@
  ******************************************************************************/
 package net.xqhs.util.logging.logging;
 
-import java.io.OutputStream;
-
 import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.wrappers.ConsoleWrapper;
+import net.xqhs.util.logging.wrappers.GlobalLogWrapper;
 import net.xqhs.util.logging.wrappers.JavaLogWrapper;
 import net.xqhs.util.logging.wrappers.Log4JWrapper;
+
+import java.io.OutputStream;
 
 /**
  * Use this abstract class to implement any [wrapper of a] logging structure that is returned by {@link Logging}.
@@ -50,6 +51,11 @@ public abstract class LogWrapper
 		 * The Java wrapper implementation.
 		 */
 		JAVA(JavaLogWrapper.class.getName()),
+
+		/**
+		 * The Global wrapper implementation.
+		 */
+		GLOBAL(GlobalLogWrapper.class.getName()),
 		
 		/**
 		 * The implementation is of another type than the ones in the enumeration.
