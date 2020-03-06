@@ -14,7 +14,7 @@ public class GlobalLogWrapper extends LogWrapper {
     /**
      * The current level of the log wrapped
      */
-    private static LoggerSimple.Level currentLevel = LoggerSimple.Level.INFO;
+    private static LoggerSimple.Level currentLevel = LoggerSimple.Level.ALL;
     /**
      * The name fo the log.
      */
@@ -36,7 +36,18 @@ public class GlobalLogWrapper extends LogWrapper {
      * @param stream a custom OutputStream
      */
     public static void setLogStream(OutputStream stream) {
-        logStream = stream;
+        synchronized (GlobalLogWrapper.class) {
+            logStream = stream;
+        }
+    }
+
+    /**
+     * Unused for this implementation
+     * @param level the new level
+     */
+    @Override
+    public void setLevel(LoggerSimple.Level level) {
+        // Unused
     }
 
     /**
@@ -44,8 +55,7 @@ public class GlobalLogWrapper extends LogWrapper {
      * will be applied to all Wrapper of Global type
      * @param level the new level
      */
-    @Override
-    public void setLevel(LoggerSimple.Level level) {
+    public static void setGlobalLevel(LoggerSimple.Level level) {
         currentLevel = level;
     }
 
@@ -65,7 +75,10 @@ public class GlobalLogWrapper extends LogWrapper {
         if (level.displayWith(currentLevel)) {
             if (logStream != null) {
                 try {
-                    logStream.write((message + "\n").getBytes());
+                    String formattedMessage = "[" + level.toString() + "]" + "[" + name + "]" + message + "\n";
+                    synchronized (GlobalLogWrapper.class) {
+                        logStream.write(formattedMessage.getBytes());
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -75,7 +88,6 @@ public class GlobalLogWrapper extends LogWrapper {
 
     @Override
     public void exit() {
-        setLevel(LoggerSimple.Level.OFF);
-        logStream = null;
+        l(LoggerSimple.Level.INFO, name + " exitted");
     }
 }
