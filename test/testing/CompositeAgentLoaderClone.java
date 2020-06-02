@@ -13,18 +13,24 @@ package testing;
 
 import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.logging.Logging;
+import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.UnitComponentExt;
 
+@SuppressWarnings("javadoc")
 public class CompositeAgentLoaderClone
 {
 	public static void main(String[] args)
 	{
-		Logging.getMasterLogging().setLogLevel(Level.ALL);
+		Logging.getMasterLogging().setLogLevel(Level.ALL).setLoggerType(LoggerType.MODERN);
 		UnitComponentExt log = (UnitComponentExt) new UnitComponentExt().setUnitName("agent loader").setLogLevel(
-				Level.ALL);
+				Level.ALL).setLoggerType(LoggerType.MODERN);
 		
 		log.trace("component [] loaded for agent [].");
 		
+		log.warn("A warning about", "something");
+		log.error("An error about", "something");
+		log.warn("A warning about", "something");
+		log.error("An error about", "something");
 		log.trace("agent [] loaded.");
 		log.doExit();
 		

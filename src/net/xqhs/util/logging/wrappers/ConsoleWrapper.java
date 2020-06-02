@@ -51,6 +51,12 @@ public class ConsoleWrapper extends LogWrapper
 	@Override
 	public void addDestination(String format, OutputStream destination)
 	{
+		addDestination(0, null);
+	}
+	
+	@Override
+	protected void addDestination(int formatData, OutputStream destination)
+	{
 		// unsupported
 		if(Level.ERROR.compareTo(currentLevel) >= 0)
 			System.out.println("[" + Level.ERROR.toString() + "][" + name + "]: Alternate destinations not supported.");

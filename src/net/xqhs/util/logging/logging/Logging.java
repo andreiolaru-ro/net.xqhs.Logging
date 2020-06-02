@@ -78,7 +78,7 @@ public class Logging
 	 * All access to the logs field should be synchronized explicitly.
 	 */
 	protected static Map<String, Logging>	logs					= Collections
-																			.synchronizedMap(new HashMap<String, Logging>());
+			.synchronizedMap(new HashMap<String, Logging>());
 	/**
 	 * All access to parents should be synchronized. In this source, all accesses take place inside locks on the logs
 	 * field.
@@ -392,35 +392,15 @@ public class Logging
 		
 		logger.setLevel(logLevel);
 		
-		String formatDisplay = null;
-		String formatReporter = null;
-		String formatConsole = null;
-		switch(wrapperType)
-		{
-		case LOG4J:
-			// deprecated, kept for future reference
-			// level, message: for DisplayEntity
-			formatDisplay = "%-5p \t %m%n";
-			// date level name message (no new line): for ReportingEntity (also, obscure reference)
-			formatReporter = AWESOME_SEPARATOR + "%d{HH:mm:ss:SSSS} %-5p [" + logName + "]:\t %m" + AWESOME_SEPARATOR;
-			// priority (level), name, message, line break: for console
-			formatConsole = "%-5p [" + logName + "]:\t %m%n";
-			break;
-		case CONSOLE:
-		case JAVA:
-		case OTHER:
-			// TODO
-			break;
-		}
-		
 		logDisplay = display;
 		externalReporter = reporter;
 		
 		if(logDisplay != null)
-			logger.addDestination(formatDisplay, logOutput);
+			logger.addDestination(0, logOutput);
 		if(externalReporter != null)
-			logger.addDestination(formatReporter, logOutputStamped);
-		logger.addDestination(formatConsole, System.out);
+			logger.addDestination(LogWrapper.INCLUDE_TIMESTAMP & LogWrapper.INCLUDE_NAME & LogWrapper.REPLACE_ENDLINES,
+					logOutputStamped);
+		logger.addDestination(LogWrapper.INCLUDE_NAME, System.out);
 		
 		if((logDisplay != null) || (externalReporter != null))
 		{

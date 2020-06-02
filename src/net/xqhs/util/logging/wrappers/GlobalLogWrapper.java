@@ -6,6 +6,13 @@ import net.xqhs.util.logging.logging.LogWrapper;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * A wrapper which writes to a stream set by calling {@link #setLogStream(OutputStream)}.
+ * <p>
+ * The level of the log is set globally.
+ * 
+ * @author Daniel Berbece
+ */
 public class GlobalLogWrapper extends LogWrapper {
     /**
      * The output stream which gets the output of the log
@@ -70,6 +77,17 @@ public class GlobalLogWrapper extends LogWrapper {
         // Unused for this implementation
     }
 
+    /**
+     * Unused in this implementation of the LogWrapper
+     * @param format
+     *            - a pattern, in a format that is potentially characteristic to the wrapper.
+     * @param destination
+     */
+    @Override
+    protected void addDestination(int format, OutputStream destination) {
+        // Unused for this implementation
+    }
+
     @Override
     public void l(LoggerSimple.Level level, String message) {
         if (level.displayWith(currentLevel)) {
@@ -88,6 +106,6 @@ public class GlobalLogWrapper extends LogWrapper {
 
     @Override
     public void exit() {
-        l(LoggerSimple.Level.INFO, name + " exitted");
+        l(LoggerSimple.Level.INFO, name + " exited");
     }
 }

@@ -38,6 +38,8 @@ public class LogWrapperFactory
 			return new JavaLogWrapper(logName);
 		case GLOBAL:
 			return new GlobalLogWrapper(logName);
+		case MODERN:
+			return new ModernLogWrapper(logName);
 		default:
 			throw new UnsupportedOperationException("wrapper type " + loggerType + " not supported.");
 		}

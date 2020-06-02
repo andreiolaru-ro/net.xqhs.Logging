@@ -47,6 +47,12 @@ public class Log4JWrapper extends LogWrapper
 	}
 	
 	@Override
+	public void addDestination(int format, OutputStream destination)
+	{
+		throw new UnsupportedOperationException("This log type is disabled.");
+	}
+	
+	@Override
 	public void l(Level level, String message)
 	{
 		throw new UnsupportedOperationException("This log type is disabled.");

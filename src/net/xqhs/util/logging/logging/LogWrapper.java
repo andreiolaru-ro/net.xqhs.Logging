@@ -11,13 +11,14 @@
  ******************************************************************************/
 package net.xqhs.util.logging.logging;
 
+import java.io.OutputStream;
+
 import net.xqhs.util.logging.LoggerSimple.Level;
 import net.xqhs.util.logging.wrappers.ConsoleWrapper;
 import net.xqhs.util.logging.wrappers.GlobalLogWrapper;
 import net.xqhs.util.logging.wrappers.JavaLogWrapper;
 import net.xqhs.util.logging.wrappers.Log4JWrapper;
-
-import java.io.OutputStream;
+import net.xqhs.util.logging.wrappers.ModernLogWrapper;
 
 /**
  * Use this abstract class to implement any [wrapper of a] logging structure that is returned by {@link Logging}.
@@ -30,6 +31,23 @@ import java.io.OutputStream;
  */
 public abstract class LogWrapper
 {
+	/**
+	 * Include in the output the name of the log / of the unit producing the message.
+	 */
+	public final static int INCLUDE_NAME = 1 >> 0;
+	/**
+	 * Include in the output the time of the message, in a detail form (e.g. HH:MM:SS.ssss or similar).
+	 */
+	public final static int INCLUDE_DETAILED_TIME = 1 >> 1;
+	/**
+	 * Include in the output the system timestamp of the message.
+	 */
+	public final static int INCLUDE_TIMESTAMP = 1 >> 2;
+	/**
+	 * Replace in the output the endlines between messages with {@link Logging#AWESOME_SEPARATOR}.
+	 */
+	public final static int REPLACE_ENDLINES = 1 >> 3;
+	
 	/**
 	 * Logger types included with this library. Wrappers for these will extend the {@link LogWrapper} class.
 	 * 
@@ -51,11 +69,16 @@ public abstract class LogWrapper
 		 * The Java wrapper implementation.
 		 */
 		JAVA(JavaLogWrapper.class.getName()),
-
+		
 		/**
 		 * The Global wrapper implementation.
 		 */
 		GLOBAL(GlobalLogWrapper.class.getName()),
+		
+		/**
+		 * The Modern log wrapper implementation.
+		 */
+		MODERN(ModernLogWrapper.class.getName()),
 		
 		/**
 		 * The implementation is of another type than the ones in the enumeration.
@@ -67,7 +90,7 @@ public abstract class LogWrapper
 		/**
 		 * The name of the wrapper class.
 		 */
-		String	className;
+		String className;
 		
 		/**
 		 * Default constructor.
@@ -99,14 +122,28 @@ public abstract class LogWrapper
 	public abstract void setLevel(Level level);
 	
 	/**
-	 * Instructs the underlying log to add a destination for its output. Currently meant for use with Log4J.
+	 * Instructs the underlying log to add a destination for its output.
+	 * <p>
+	 * This method is deprecated and implementations should use {@link #addDestination(int, OutputStream)} instead.
 	 * 
 	 * @param format
-	 *            - a pattern, in a format that is potentially characteristic to the wrapper.
+	 *            - a pattern, in a format that is potentially characteristic to the wrapper. This format is
+	 *            wrapper-specific.
 	 * @param destination
 	 *            - a destination stream.
 	 */
+	@Deprecated
 	protected abstract void addDestination(String format, OutputStream destination);
+	
+	/**
+	 * Instructs the underlying log to add a destination for its output.
+	 * 
+	 * @param formatData
+	 *            - a bitwise operation between constants defined in this class.
+	 * @param destination
+	 *            - a destination stream.
+	 */
+	protected abstract void addDestination(int formatData, OutputStream destination);
 	
 	/**
 	 * The logging function to override in the implementation of the class.
@@ -118,7 +155,7 @@ public abstract class LogWrapper
 	 *            - the logging message.
 	 */
 	public abstract void l(Level level, String message);
-
+	
 	/**
 	 * Instructs the underlying infrastructure to clear any information and actions related to this log.
 	 */

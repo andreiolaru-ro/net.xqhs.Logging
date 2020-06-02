@@ -94,6 +94,14 @@ public class JavaLogWrapper extends LogWrapper
 	}
 	
 	@Override
+	public void addDestination(int format, OutputStream destination)
+	{
+		StreamHandler handler = new StreamHandler(destination, new SimpleFormatter());
+		handlers.add(handler);
+		theLog.addHandler(handler);
+	}
+
+	@Override
 	public void l(Level level, String message)
 	{
 		theLog.log(toWrapedLevel(level), message);

@@ -32,11 +32,12 @@ public class UnitLinkData extends Config
 	/**
 	 * The name of the parent {@link LogWrapper}.
 	 */
-	String	parentLogName	= null;
-	boolean	exitTogether	= true;	// unused
-	boolean	includeInParent	= false;	// unused
-	String	prefix			= "";		// unused
-										
+	String	parentLogName		= null;
+	boolean	linkLevelChanges	= true;		// unused
+	boolean	exitTogether		= true;		// unused
+	boolean	includeInParent		= false;	// unused
+	String	prefix				= "";		// unused
+	
 	public UnitLinkData()
 	{
 		super();

@@ -610,6 +610,7 @@ public class Unit extends Config
 	 */
 	protected Logger getLogger()
 	{
+		ensureLocked();
 		return new BaseLogger() {
 			
 			@Override
