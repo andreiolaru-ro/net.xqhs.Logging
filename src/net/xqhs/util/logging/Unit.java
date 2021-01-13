@@ -35,9 +35,11 @@ import net.xqhs.util.logging.logging.Logging;
  * publicly. This purpose is fulfilled by {@link UnitComponent}.
  * <p>
  * {@link Unit} only offers the reduced ('simple') set of primitives specified by the {@link LoggerSimple} interface. It
- * does not implement the interface however, as that would require the methods to become public.
+ * does not implement the interface however, as that would require the methods to become public. If the set of
+ * primitives specified by {@link Logger} is needed, {@link UnitExt} should be used instead of this class.
  * <p>
- * The class extends {@link Config}, so extending classes can use the features offered by {@link Config}.
+ * The class extends {@link Config}, so extending classes can use the features offered by {@link Config} (such as
+ * locking of the configuration).
  * <p>
  * The sole purpose of the {@link Unit} layer of an instance is to handle logging.
  * 
@@ -173,7 +175,7 @@ public class Unit extends Config
 	 * Sets the name of the unit (and therefore of the log). See {@link Unit} for details on naming.
 	 * 
 	 * @param name
-	 *            - the desired name of the unit
+	 *                 - the desired name of the unit
 	 * @return the instance itself
 	 */
 	public Unit setUnitName(String name)
@@ -188,13 +190,14 @@ public class Unit extends Config
 	 * the other parameters.
 	 * 
 	 * @param name
-	 *            - the desired name of the unit
+	 *                             - the desired name of the unit
 	 * @param postfix
-	 *            - if <code>true</code>, the name of the class will be concatenated after the name of the unit;
-	 *            otherwise, before
+	 *                             - if <code>true</code>, the name of the class will be concatenated after the name of
+	 *                             the unit; otherwise, before
 	 * @param useLongClassName
-	 *            - if <code>true</code>, the complete name of the class will be used (including the package).
-	 *            Otherwise, only the name obtained by <code>Class.getSimpleName()</code> is used.
+	 *                             - if <code>true</code>, the complete name of the class will be used (including the
+	 *                             package). Otherwise, only the name obtained by <code>Class.getSimpleName()</code> is
+	 *                             used.
 	 * @return the instance itself
 	 */
 	public Unit setUnitName(String name, boolean postfix, boolean useLongClassName)
@@ -207,16 +210,16 @@ public class Unit extends Config
 	 * details.
 	 * 
 	 * @param name
-	 *            - the configured name of the unit.
+	 *                             - the configured name of the unit.
 	 * @param addClassName
-	 *            - if <code>true</code>, the name of this class will be added to the name of the log.
+	 *                             - if <code>true</code>, the name of this class will be added to the name of the log.
 	 * @param postfix
-	 *            - if <code>true</code>, the name of the class will be added after the name of the unit; if
-	 *            <code>false</code>, it will be added before.
+	 *                             - if <code>true</code>, the name of the class will be added after the name of the
+	 *                             unit; if <code>false</code>, it will be added before.
 	 * @param useLongClassName
-	 *            - if <code>true</code>, the canonical name of the class will be used (returned by
-	 *            <code>getCanonicalName()</code> ; if false, the simple name (returned by <code>getSimpleName()</code>
-	 *            ).
+	 *                             - if <code>true</code>, the canonical name of the class will be used (returned by
+	 *                             <code>getCanonicalName()</code> ; if false, the simple name (returned by
+	 *                             <code>getSimpleName()</code> ).
 	 * @return the instance itself.
 	 */
 	private Unit setUnitName(String name, boolean addClassName, boolean postfix, boolean useLongClassName)
@@ -254,7 +257,7 @@ public class Unit extends Config
 	 * argument.
 	 * 
 	 * @param classNameLong
-	 *            - if <code>true</code>, the canonical name is used; the simple name otherwise.
+	 *                          - if <code>true</code>, the canonical name is used; the simple name otherwise.
 	 * @return the name of the class.
 	 */
 	private String makeClassName(boolean classNameLong)
@@ -280,7 +283,7 @@ public class Unit extends Config
 	 * Sets the type of the logging infrastructure and wrapper used by this unit.
 	 * 
 	 * @param loggerType
-	 *            - the type of logging infrastructure, as one of {@link LoggerType}.
+	 *                       - the type of logging infrastructure, as one of {@link LoggerType}.
 	 * @return the instance itself.
 	 */
 	public Unit setLoggerType(LoggerType loggerType)
@@ -294,7 +297,7 @@ public class Unit extends Config
 	 * Sets the class of the wrapper for the underlying logger. The class must implement {@link LogWrapper}.
 	 * 
 	 * @param className
-	 *            - the name of the class.
+	 *                      - the name of the class.
 	 * @return the instance itself.
 	 */
 	public Unit setLoggerClass(String className)
@@ -309,9 +312,9 @@ public class Unit extends Config
 	 * simultaneously. The arguments, however, cannot be both not null at the same time. FIXME
 	 * 
 	 * @param loggerType
-	 *            -- the type of the wrapper, as one of {@link LoggerType}.
+	 *                       -- the type of the wrapper, as one of {@link LoggerType}.
 	 * @param className
-	 *            -- the class of a {@link LogWrapper} implementation.
+	 *                       -- the class of a {@link LogWrapper} implementation.
 	 * @return the instance itself.
 	 */
 	protected Unit setLoggerTypeClass(LoggerType loggerType, String className)
@@ -341,7 +344,7 @@ public class Unit extends Config
 	 * Sets the level of the log, as one of {@link Level}. Messages below this level will not be shown in the output.
 	 * 
 	 * @param logLevel
-	 *            - the level.
+	 *                     - the level.
 	 * @return the instance itself.
 	 */
 	public Unit setLogLevel(Level logLevel)
@@ -354,7 +357,7 @@ public class Unit extends Config
 	 * Sets the name of the parent log.
 	 * 
 	 * @param parentLogName
-	 *            - the name of the parent log.
+	 *                          - the name of the parent log.
 	 * @return the instance itself.
 	 */
 	public Unit setLink(String parentLogName)
@@ -366,7 +369,7 @@ public class Unit extends Config
 	 * Sets the information on linking this unit to another log.
 	 * 
 	 * @param unitLinkData
-	 *            - the {@link UnitLinkData} instance configuring the link.
+	 *                         - the {@link UnitLinkData} instance configuring the link.
 	 * @return the instance itself.
 	 */
 	public Unit setLink(UnitLinkData unitLinkData)
@@ -381,7 +384,7 @@ public class Unit extends Config
 	 * Sets the {@link DisplayEntity} to receive updates form the log.
 	 * 
 	 * @param logDisplay
-	 *            - the display.
+	 *                       - the display.
 	 * @return the instance itself.
 	 */
 	public Unit setLogDisplay(DisplayEntity logDisplay)
@@ -394,7 +397,7 @@ public class Unit extends Config
 	 * Sets the {@link ReportingEntity} to receive updates from the log.
 	 * 
 	 * @param reportingEntity
-	 *            - the reporter.
+	 *                            - the reporter.
 	 * @return the instance itself.
 	 */
 	public Unit setLogReporter(ReportingEntity reportingEntity)
@@ -435,9 +438,9 @@ public class Unit extends Config
 	 * Post an error message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
-	 *            : the message to display
+	 *                      : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple#le}.
+	 *                      : arguments to insert into the message. See {@link LoggerSimple#le}.
 	 */
 	protected void le(String message, Object... arguments)
 	{
@@ -448,9 +451,9 @@ public class Unit extends Config
 	 * Post a warning message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
-	 *            : the message to display
+	 *                      : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple#lw}.
+	 *                      : arguments to insert into the message. See {@link LoggerSimple#lw}.
 	 */
 	protected void lw(String message, Object... arguments)
 	{
@@ -461,9 +464,9 @@ public class Unit extends Config
 	 * Post an informative message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
-	 *            : the message to display
+	 *                      : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple#li}.
+	 *                      : arguments to insert into the message. See {@link LoggerSimple#li}.
 	 */
 	protected void li(String message, Object... arguments)
 	{
@@ -474,9 +477,9 @@ public class Unit extends Config
 	 * Post a tracing message. See {@link LoggerSimple}.
 	 * 
 	 * @param message
-	 *            : the message to display
+	 *                      : the message to display
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple#lf}.
+	 *                      : arguments to insert into the message. See {@link LoggerSimple#lf}.
 	 */
 	protected void lf(String message, Object... arguments)
 	{
@@ -488,7 +491,7 @@ public class Unit extends Config
 	 * in the argument, displaying the {@link Object}. See {@link LoggerSimple#lr}.
 	 * 
 	 * @param ret
-	 *            : the {@link Object} to return.
+	 *                : the {@link Object} to return.
 	 * @return the {@link Object} passed as argument.
 	 */
 	protected Object lr(Object ret)
@@ -503,11 +506,11 @@ public class Unit extends Config
 	 * The {@link Object} in the argument is also put in the log message.
 	 * 
 	 * @param ret
-	 *            : the {@link Object} to return and to display. {@link Level#TRACE} will be used.
+	 *                      : the {@link Object} to return and to display. {@link Level#TRACE} will be used.
 	 * @param message
-	 *            : the message to display beside the {@link Object}.
+	 *                      : the message to display beside the {@link Object}.
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple#lr}.
+	 *                      : arguments to insert into the message. See {@link LoggerSimple#lr}.
 	 * @return the {@link Object} passed as argument.
 	 */
 	protected Object lr(Object ret, String message, Object... arguments)
@@ -524,11 +527,11 @@ public class Unit extends Config
 	 * returning the value in the first argument. See {@link LoggerSimple}.
 	 * 
 	 * @param ret
-	 *            : the value to return.
+	 *                      : the value to return.
 	 * @param message
-	 *            : the message to display. {@link Level#ERROR} will be used.
+	 *                      : the message to display. {@link Level#ERROR} will be used.
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple#ler}.
+	 *                      : arguments to insert into the message. See {@link LoggerSimple#ler}.
 	 * @return the {@link Object} passed as argument.
 	 */
 	protected boolean ler(boolean ret, String message, Object... arguments)
@@ -542,11 +545,11 @@ public class Unit extends Config
 	 * activated. See {@link LoggerSimple}.
 	 * 
 	 * @param debug
-	 *            : the {@link DebugItem}
+	 *                      : the {@link DebugItem}
 	 * @param message
-	 *            : the log message
+	 *                      : the log message
 	 * @param arguments
-	 *            : arguments to insert into the message. See {@link LoggerSimple}.
+	 *                      : arguments to insert into the message. See {@link LoggerSimple}.
 	 */
 	protected void dbg(DebugItem debug, String message, Object... arguments)
 	{
@@ -559,11 +562,12 @@ public class Unit extends Config
 	 * parameter objects.
 	 * 
 	 * @param messageLevel
-	 *            - the level of the message.
+	 *                         - the level of the message.
 	 * @param message
-	 *            - the text of the message.
+	 *                         - the text of the message.
 	 * @param arguments
-	 *            - the objects to be inserted in the placeholders of the message text (see {@link LoggerSimple}).
+	 *                         - the objects to be inserted in the placeholders of the message text (see
+	 *                         {@link LoggerSimple}).
 	 */
 	protected void l(Level messageLevel, String message, Object... arguments)
 	{
@@ -579,9 +583,9 @@ public class Unit extends Config
 	 * Remaining objects will be displayed after the message.
 	 * 
 	 * @param message
-	 *            : the message text.
+	 *                    : the message text.
 	 * @param objects
-	 *            : the objects.
+	 *                    : the objects.
 	 * @return the assembled string.
 	 */
 	protected static String compose(String message, Object[] objects)

@@ -11,6 +11,9 @@
  ******************************************************************************/
 package testing;
 
+import java.util.Random;
+
+import examples.Example;
 import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.DumbLogger;
 import net.xqhs.util.logging.Logger;
@@ -20,7 +23,6 @@ import net.xqhs.util.logging.logging.LogWrapper;
 import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.logging.Logging;
 
-@SuppressWarnings("javadoc")
 public class LogTester
 {
 	enum LocalDebug implements DebugItem
@@ -115,6 +117,20 @@ public class LogTester
 		{
 			e.printStackTrace();
 		}
+		
+		System.out.println("\n\n=================== VISIBILITY TESTING ====================\n\n");
+		
+		String[] sources = new String[] { "Short", "Short2", "VSh", "MediumSource", "A-Longer-Source",
+		"A-Very-Long-Logging-Source" };
+		
+		Random rand = new Random();
+		for(int i = 0; i < 50; i++)
+		{
+			String source = sources[rand.nextInt(sources.length)];
+			LogWrapper log = Logging.getLogger(source, null, null, null, false, LoggerType.CONSOLE.getClassName(), Level.ALL);
+			log.l(Example.levelPicker(), "Some logging message");
+		}
+		
 		
 		System.out.println("\n\n=================== END ====================\n\n");
 	}

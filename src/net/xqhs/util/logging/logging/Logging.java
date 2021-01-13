@@ -120,7 +120,6 @@ public class Logging
 	 */
 	protected Level							logLevel				= Level.ALL;
 	
-	// here be the components of the log related to external reporting (to a text area and to a Jade agent, respectively
 	/**
 	 * Contains the entire output of the log. Version without time stamps and unit name, just level and message.
 	 */
