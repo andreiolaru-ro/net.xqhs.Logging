@@ -3,14 +3,14 @@ package net.xqhs.util.logging;
 import net.xqhs.util.logging.Debug.DebugItem;
 
 /**
- * This abstract class offers an implementation for the methods specified by the {@link Logger} interface, leaving only
+ * This abstract class offers an implementation for the methods specified by the {@link LoggerClassic} interface, leaving only
  * {@link #l} and {@link #lr} to be implemented.
  * <p>
  * The implementation currently replicates the code in {@link Unit} and {@link UnitExt}.
  * 
  * @author andreiolaru
  */
-public abstract class BaseLogger implements Logger
+public abstract class BaseLogger implements LoggerClassic
 {
 	@Override
 	public void le(String message, Object... arguments)
@@ -68,7 +68,7 @@ public abstract class BaseLogger implements Logger
 	 * @param message
 	 *            - the text of the message.
 	 * @param arguments
-	 *            - the objects to be inserted in the placeholders of the message text (see {@link LoggerSimple}).
+	 *            - the objects to be inserted in the placeholders of the message text (see {@link Logger}).
 	 */
 	protected abstract void l(Level messageLevel, String message, Object... arguments);
 

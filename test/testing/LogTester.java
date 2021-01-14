@@ -11,45 +11,53 @@
  ******************************************************************************/
 package testing;
 
+import java.util.Random;
+
 import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.DumbLogger;
-import net.xqhs.util.logging.Logger;
-import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.LoggerClassic;
+import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.logging.LogWrapper;
 import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.logging.Logging;
 
 @SuppressWarnings("javadoc")
-public class LogTester
-{
-	enum LocalDebug implements DebugItem
-	{
+public class LogTester {
+	enum LocalDebug implements DebugItem {
 		DO_DEBUG(true)
 		
 		;
 		
 		boolean value;
 		
-		private LocalDebug(boolean value)
-		{
+		private LocalDebug(boolean value) {
 			this.value = value;
 		}
 		
 		@Override
-		public boolean toBool()
-		{
+		public boolean toBool() {
 			return value;
 		}
 	}
 	
-	public static String someMethod(UnitComponent log)
-	{
+	public static String someMethod(UnitComponent log) {
 		return (String) log.lr("test", "i am [] here", "standing");
 	}
 	
-	public static void main(String[] args)
+	public static Level levelPicker()
 	{
+		int r = new Random().nextInt(10);
+		if(r < 1)
+			return Level.ERROR;
+		if(r < 3)
+			return Level.WARN;
+		if(r < 7)
+			return Level.INFO;
+		return Level.TRACE;
+	}
+	
+	public static void main(String[] args) {
 		Logging.getMasterLogging().setLogLevel(Level.ALL);
 		
 		String NAME = "log";
@@ -71,18 +79,16 @@ public class LogTester
 		
 		log1.l(Level.ERROR, "error out");
 		
-		try
-		{
+		try {
 			Thread.sleep(500);
-		} catch(InterruptedException e)
-		{
+		} catch(InterruptedException e) {
 			e.printStackTrace();
 		}
 		
 		System.out.println("\n\n=================== PART 2 ====================\n\n");
 		
-		UnitComponent testUnit = (UnitComponent) new UnitComponent().setLogLevel(Level.ALL).setLoggerType(
-				LoggerType.CONSOLE);
+		UnitComponent testUnit = (UnitComponent) new UnitComponent().setLogLevel(Level.ALL)
+				.setLoggerType(LoggerType.CONSOLE);
 		// testUnit.setUnitName(NAME + "|", true, true);
 		// testUnit.setUnitName(Unit.DEFAULT_UNIT_NAME);
 		testUnit.setUnitName(NAME);
@@ -104,16 +110,27 @@ public class LogTester
 		
 		System.out.println("\n\n=================== PART 3 ====================\n\n");
 		
-		Logger simpleLog = DumbLogger.get();
+		LoggerClassic simpleLog = DumbLogger.get();
 		simpleLog.le("some error", "some argument");
 		simpleLog.dbg(LocalDebug.DO_DEBUG, "some debug");
 		
-		try
-		{
+		try {
 			Thread.sleep(500);
-		} catch(InterruptedException e)
-		{
+		} catch(InterruptedException e) {
 			e.printStackTrace();
+		}
+		
+		System.out.println("\n\n=================== VISIBILITY TESTING ====================\n\n");
+		
+		String[] sources = new String[] { "Short", "Short2", "VSh", "MediumSource", "A-Longer-Source",
+				"A-Very-Long-Logging-Source" };
+		
+		Random rand = new Random();
+		for(int i = 0; i < 50; i++) {
+			String source = sources[rand.nextInt(sources.length)];
+			LogWrapper log = Logging.getLogger(source, null, null, null, false, LoggerType.CONSOLE.getClassName(),
+					Level.ALL);
+			log.l(levelPicker(), "Some logging message");
 		}
 		
 		System.out.println("\n\n=================== END ====================\n\n");

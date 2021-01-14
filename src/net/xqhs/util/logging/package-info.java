@@ -22,8 +22,8 @@
  * infrastructures. 
  * <p>
  * Since it may be desired to pass a log to a method / class without the callee being able to change settings, and only 
- * having access to the logging primitives, all Unit* classes implement {@link net.xqhs.util.logging.LoggerSimple} or 
- * {@link net.xqhs.util.logging.Logger} interfaces.
+ * having access to the logging primitives, all Unit* classes implement {@link net.xqhs.util.logging.Logger} or 
+ * {@link net.xqhs.util.logging.LoggerClassic} interfaces.
  * <p>
  * See the classes linked above for more details.
  */

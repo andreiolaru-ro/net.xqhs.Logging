@@ -14,7 +14,7 @@ package net.xqhs.util.logging;
 
 /**
  * Class containing different debug items that can be activated or deactivated by editing this class. Works together
- * with the method <code>dbg()</code> in {@link LoggerSimple} or similar implementations.
+ * with the method <code>dbg()</code> in {@link Logger} or similar implementations.
  * <p>
  * For documentation purposes, classes containing {@link LocalDebugItem} enums should extend the {@link Debug} class.
  * <p>
@@ -27,7 +27,7 @@ public class Debug
 {
 	/**
 	 * This interface must be implemented by all enumerations of debug constants in order to be able to use them as
-	 * arguments of method <code>dbg()</code> in {@link LoggerSimple} implementations.
+	 * arguments of method <code>dbg()</code> in {@link Logger} implementations.
 	 * 
 	 * @author Andrei Olaru
 	 */

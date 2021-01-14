@@ -13,12 +13,12 @@ package net.xqhs.util.logging;
 
 
 /**
- * The class extends {@link UnitExt} to implement all methods required by the {@link Logger} interface and expose all
+ * The class extends {@link UnitExt} to implement all methods required by the {@link LoggerClassic} interface and expose all
  * methods as public.
  * 
  * @author Andrei Olaru
  */
-public class UnitComponentExt extends UnitComponent implements Logger
+public class UnitComponentExt extends UnitComponent implements LoggerClassic
 {
 	@Override
 	public void error(String message, Object... arguments)

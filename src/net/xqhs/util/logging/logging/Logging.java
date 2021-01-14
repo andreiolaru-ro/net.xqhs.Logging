@@ -21,7 +21,7 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import net.xqhs.util.logging.DisplayEntity;
-import net.xqhs.util.logging.LoggerSimple.Level;
+import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.ReportingEntity;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.logging.LogDebug.LogDebugItem;
@@ -59,15 +59,6 @@ import net.xqhs.util.logging.wrappers.LogWrapperFactory;
  */
 public class Logging
 {
-	/**
-	 * The default log wrapper, as one of {@link LoggerType}.
-	 */
-	public static final LoggerType			defaultLoggerWrapper	= LoggerType.CONSOLE;
-	
-	/**
-	 * A special character that is used to separate log lines when sending log output to the reporting entity.
-	 */
-	public static Character					AWESOME_SEPARATOR		= new Character((char) 30);
 	
 	// // here be the static components of the class, which by being static are unique for the current JVM.
 	
@@ -192,7 +183,7 @@ public class Logging
 	 *            : <code>false</code> if to return an existing log with the same name, if any; <code>true</code> if to
 	 *            throw an exception should another log with the same name exist.
 	 * @param logWrapperClass
-	 *            : the {@link LogWrapper} class to instantiate. If null, the class of {@link #defaultLoggerWrapper} is
+	 *            : the {@link LogWrapper} class to instantiate. If null, the class of {@link #DEFAULT_LOGGER_WRAPPER} is
 	 *            chosen. Some class names can also be obtained from calling {@link LoggerType#getClassName()} on
 	 *            various values of {@link LoggerType}.
 	 * @param level
@@ -396,11 +387,11 @@ public class Logging
 		externalReporter = reporter;
 		
 		if(logDisplay != null)
-			logger.addDestination(0, logOutput);
+			logger.addOutput(0, logOutput);
 		if(externalReporter != null)
-			logger.addDestination(LogWrapper.INCLUDE_TIMESTAMP & LogWrapper.INCLUDE_NAME & LogWrapper.REPLACE_ENDLINES,
+			logger.addOutput(LogWrapper.INCLUDE_TIMESTAMP & LogWrapper.INCLUDE_NAME & LogWrapper.REPLACE_ENDLINES,
 					logOutputStamped);
-		logger.addDestination(LogWrapper.INCLUDE_NAME, System.out);
+		logger.addOutput(LogWrapper.INCLUDE_NAME, System.out);
 		
 		if((logDisplay != null) || (externalReporter != null))
 		{

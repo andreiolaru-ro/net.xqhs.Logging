@@ -12,14 +12,24 @@
 package net.xqhs.util.logging;
 
 /**
- * This class extends {@link Unit} in order to provide all functionality required by the {@link LoggerClassic} interface.
+ * Any class that offers logging services to an external entity should implement this interface.
  * <p>
- * The class does not implement the interface, as that would require for the methods to be public, but to policy of
- * {@link Unit} is to have logging methods protected.
+ * This interface extends the functionality described by {@link Logger}.
+ * <p>
+ * This interface should also allow classes like {@link UnitExt} and {@link UnitComponentExt} to expose only logging
+ * functions, without any configuration facilities.
+ * <p>
+ * Implementing classes should offer three sets of methods:
+ * <ul>
+ * <li>Classic: <code>error</code>, <code>warn</code>, <code>info</code>, <code>trace</code> - also available with
+ * {@link Object} parameters;
+ * <li>Short: <code>le, lw, li, lf</code>;
+ * <li>Special: <code>lr</code>, to be used in return statements, and <code>dbg</code>. See {@link Logger}.
+ * </ul>
  * 
  * @author Andrei Olaru
  */
-public class UnitExt extends Unit
+public interface LoggerClassic extends Logger
 {
 	/**
 	 * Relay for {@link #le(String, Object...)}.
@@ -27,10 +37,7 @@ public class UnitExt extends Unit
 	 * @param message : see the relayed method.
 	 * @param arguments : see the relayed method.
 	 */
-	protected void error(String message, Object... arguments)
-	{
-		le(message, arguments);
-	}
+	public void error(String message, Object... arguments);
 	
 	/**
 	 * Relay for {@link #lw(String, Object...)}.
@@ -38,10 +45,7 @@ public class UnitExt extends Unit
 	 * @param message : see the relayed method.
 	 * @param arguments : see the relayed method.
 	 */
-	protected void warn(String message, Object... arguments)
-	{
-		lw(message, arguments);
-	}
+	public void warn(String message, Object... arguments);
 	
 	/**
 	 * Relay for {@link #li(String, Object...)}.
@@ -49,10 +53,7 @@ public class UnitExt extends Unit
 	 * @param message : see the relayed method.
 	 * @param arguments : see the relayed method.
 	 */
-	protected void info(String message, Object... arguments)
-	{
-		li(message, arguments);
-	}
+	public void info(String message, Object... arguments);
 	
 	/**
 	 * Relay for {@link #lf(String, Object...)}.
@@ -60,8 +61,5 @@ public class UnitExt extends Unit
 	 * @param message : see the relayed method.
 	 * @param arguments : see the relayed method.
 	 */
-	protected void trace(String message, Object... arguments)
-	{
-		lf(message, arguments);
-	}
+	public void trace(String message, Object... arguments);
 }

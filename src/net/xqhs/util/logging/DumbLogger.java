@@ -12,7 +12,7 @@
 package net.xqhs.util.logging;
 
 /**
- * This class acts as a simple implementation for the {@link Logger} interface, not connected to any of the actual
+ * This class acts as a simple implementation for the {@link LoggerClassic} interface, not connected to any of the actual
  * Logging infrastructure.
  * <p>
  * A static instance is also offered, obtained by calling {@link #get()}.
@@ -24,7 +24,7 @@ package net.xqhs.util.logging;
  * default preamble (#) can be given in the constructor.
  * <p>
  * It prints all messages to the standard output. The only feature is that it assembles messages by replacing
- * {@value LoggerSimple#ARGUMENT_PLACEHOLDER} groups in the message with arguments received by methods (by calling
+ * {@value Logger#ARGUMENT_PLACEHOLDER} groups in the message with arguments received by methods (by calling
  * {@link Unit#compose}.
  * 
  * @author Andrei Olaru
@@ -34,7 +34,7 @@ public class DumbLogger extends BaseLogger
 	/**
 	 * The static instance.
 	 */
-	protected final static Logger staticInstance = new DumbLogger();
+	protected final static LoggerClassic staticInstance = new DumbLogger();
 
 	/**
 	 * Preamble to insert at the beginning of messages.
@@ -62,7 +62,7 @@ public class DumbLogger extends BaseLogger
 	/**
 	 * @return the static {@link DumbLogger} instance.
 	 */
-	public static Logger get()
+	public static LoggerClassic get()
 	{
 		return staticInstance;
 	}

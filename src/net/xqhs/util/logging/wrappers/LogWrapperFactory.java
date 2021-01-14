@@ -32,12 +32,6 @@ public class LogWrapperFactory
 	{
 		switch(loggerType)
 		{
-		case CONSOLE:
-			return new ConsoleWrapper(logName);
-		case JAVA:
-			return new JavaLogWrapper(logName);
-		case GLOBAL:
-			return new GlobalLogWrapper(logName);
 		case MODERN:
 			return new ModernLogWrapper(logName);
 		default:

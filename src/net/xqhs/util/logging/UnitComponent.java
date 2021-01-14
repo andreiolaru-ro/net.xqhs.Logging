@@ -17,15 +17,33 @@ package net.xqhs.util.logging;
 import net.xqhs.util.logging.Debug.DebugItem;
 
 /**
- * A class that extends {@link Unit} and exposes the logging methods. See {@link Unit} for details. It implements {@link LoggerSimple}.
+ * A class that extends {@link Unit} and exposes the logging methods. See {@link Unit} for details. It implements {@link Logger}.
  * <p>
  * This allows a class to use the functionality of a {@link Unit} without extending {@link Unit}.
  * 
  * @author Andrei Olaru
  * 
  */
-public class UnitComponent extends Unit implements LoggerSimple
+public class UnitComponent extends Unit implements Logger
 {
+	/**
+	 * This constructor is here only for backwards compatibility as it is usually not useful add the unit name later.
+	 */
+	@Deprecated
+	public UnitComponent() {
+		super();
+	}
+	
+	/**
+	 * Creates a new instance and gives it a name.
+	 * 
+	 * @param unitName - the name of the log.
+	 */
+	public UnitComponent(String unitName) {
+		super();
+		setUnitName(unitName);
+	}
+	
 	@Override
 	public void le(String message, Object... arguments)
 	{
@@ -66,6 +84,12 @@ public class UnitComponent extends Unit implements LoggerSimple
 	public boolean ler(boolean ret, String message, Object... arguments)
 	{
 		return super.ler(ret, message, arguments);
+	}
+	
+	@Override
+	public void l(Level messageLevel, String message, Object... arguments)
+	{
+		super.l(messageLevel, message, arguments);
 	}
 	
 	@Override
