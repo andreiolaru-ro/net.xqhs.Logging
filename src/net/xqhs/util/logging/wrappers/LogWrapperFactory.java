@@ -11,8 +11,8 @@
  ******************************************************************************/
 package net.xqhs.util.logging.wrappers;
 
-import net.xqhs.util.logging.logging.LogWrapper;
-import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
+import net.xqhs.util.logging.LogWrapper;
+import net.xqhs.util.logging.LogWrapper.LoggerType;
 
 /**
  * Replaces dynamic class loading with a factory method.

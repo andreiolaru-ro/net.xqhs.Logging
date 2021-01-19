@@ -16,24 +16,26 @@ import java.util.Set;
 
 import net.xqhs.util.config.Config;
 import net.xqhs.util.logging.Debug.DebugItem;
+import net.xqhs.util.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.Logger.Level;
-import net.xqhs.util.logging.logging.LogWrapper;
-import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.wrappers.LogWrapperFactory;
-import net.xqhs.util.logging.logging.Logging;
+import net.xqhs.util.logging.output.LogOutput;
 
 /**
- * The Unit class should be extended by classes in which logging primitives should be available without calling a
- * specific instance. I.e. it will be possible to call primitives directly (e.g. <code>le(message);</code>). Logging
- * primitives will be protected.
+ * The Unit class should be extended by classes in which logging primitives should be available without creating a
+ * specific object for logging. I.e. it will be possible to call primitives directly (e.g. <code>le(message);</code>).
+ * Logging primitives will be <code>protected</code>.
  * <p>
- * It is characterized by the unitName, which also gives the name of the log. If the configured name is
+ * It is characterized by the <code>unitName</code>, which also gives the name of the log. If the configured name is
  * <code>null</code>, but the instance overrides the <code>getDefaultUnitName()</code> method, then the value returned
  * by that method will be used. If the name is <code>null</code> and there is no override of
  * <code>getDefaultUnitName()</code>, no log will be created and the elements in the configuration will be of no effect.
  * If the name is <code>DEFAULT_UNIT_NAME</code>, the name of the class will be used. In any other case, the given unit
  * name will be used and the log name will be computed accordingly -- will be the equal to the unit name or, if
  * {@link #setUnitName(String, boolean, boolean)} is called, the name of the class will be added.
+ * <p>
+ * The actual {@link LogWrapper} instance is created when a logging message is posted, when an output is added, or when
+ * the {@link #buildLog()} method is called.
  * <p>
  * Although not abstract, the Unit cannot be used as a member of a class, as no logging functions are available
  * publicly. This purpose is fulfilled by {@link UnitComponent}.
@@ -45,6 +47,8 @@ import net.xqhs.util.logging.logging.Logging;
  * <p>
  * The class extends {@link Config}, so extending classes can use the features offered by {@link Config}. In order not
  * to interfere with the functionality of extending classes, the {@link Unit} never {@link #lock}s the configuration.
+ * This class implements a {@link #lockedR()} method with the same role as {@link #locked()}, but which transforms the
+ * {@link net.xqhs.util.config.Config.ConfigLockedException} into an error message in the log.
  * <p>
  * The sole purpose of the {@link Unit} layer of an instance is to handle logging.
  * 
@@ -66,12 +70,15 @@ public class Unit extends Config {
 	 */
 	String		unitName			= null;
 	/**
-	 * The name that will be given to the log. See {@link Unit} for details.
+	 * The name that will be given to the log, may be the same with <code>unitName</code>, if that one is not
+	 * <code>null</code>. See {@link Unit} for details.
 	 */
 	String		logName				= null;
 	/**
 	 * If <code>true</code>, then if another log exists with the same name, an error will be produced. If
 	 * <code>false</code> and another log with the same name exists, that log will be used.
+	 * <p>
+	 * <b>Note:</b> this functionality is not currently implemented.
 	 */
 	boolean		ensureNew			= false;
 	/**
@@ -125,6 +132,7 @@ public class Unit extends Config {
 	 */
 	public Unit() {
 		super();
+		addParentUnit(MasterLog.masterLog);
 	}
 	
 	/**
@@ -156,12 +164,11 @@ public class Unit extends Config {
 		
 		if(unitName == null || logName == null)
 			return this;
-		// log = Logging.getLogger(logName, linkData.parentLogName, display, reporter, ensureNew, loggerWrapperClass,
-		// level);
 		if(loggerWrapperType == null)
 			loggerWrapperType = Logger.DEFAULT_LOGGER_WRAPPER;
 		log = LogWrapperFactory.getLogWrapper(loggerWrapperType, logName);
-		log.setLevel(level);
+		setLogLevelInternal(level);
+		log.setHighlighted(highlighted);
 		return this;
 	}
 	
@@ -172,7 +179,7 @@ public class Unit extends Config {
 	 *            - the desired name of the unit
 	 * @return the instance itself
 	 */
-	public Unit setUnitName(String name) {
+	protected Unit setUnitName(String name) {
 		return setUnitName(name, false, false, false);
 	}
 	
@@ -192,7 +199,7 @@ public class Unit extends Config {
 	 *            Otherwise, only the name obtained by <code>Class.getSimpleName()</code> is used.
 	 * @return the instance itself
 	 */
-	public Unit setUnitName(String name, boolean postfix, boolean useLongClassName) {
+	protected Unit setUnitName(String name, boolean postfix, boolean useLongClassName) {
 		return setUnitName(name, true, postfix, useLongClassName);
 	}
 	
@@ -256,10 +263,12 @@ public class Unit extends Config {
 	/**
 	 * If called, when the log is created, if another log exists with the same name, an error will be produced.
 	 * Otherwise, if another log with the same name already exists, that log will be used.
+	 * <p>
+	 * <b>Note:</b> this functionality is not currently implemented.
 	 * 
 	 * @return the instance itself.
 	 */
-	public Unit setLogEnsureNew() {
+	protected Unit setLogEnsureNew() {
 		if(lockedR())
 			return this;
 		ensureNew = true;
@@ -273,7 +282,7 @@ public class Unit extends Config {
 	 *            - the type of logging infrastructure, as one of {@link LoggerType}.
 	 * @return the instance itself.
 	 */
-	public Unit setLoggerType(LoggerType loggerType) {
+	protected Unit setLoggerType(LoggerType loggerType) {
 		if(loggerType == null)
 			throw new IllegalArgumentException("Given logger type is null");
 		if(lockedR())
@@ -283,14 +292,157 @@ public class Unit extends Config {
 	}
 	
 	/**
-	 * Sets the level of the log, as one of {@link Level}. Messages below this level will not be shown in the output.
+	 * Sets the level (and also its proper level) of the log, as one of {@link Level}. Messages below this level will
+	 * not be shown in the output.
 	 * 
 	 * @param logLevel
 	 *            - the level.
 	 * @return the instance itself.
 	 */
-	public Unit setLogLevel(Level logLevel) {
+	protected Unit setLogLevel(Level logLevel) {
+		properLevel = logLevel;
+		setLogLevelInternal(logLevel);
+		for(Unit child : childrenUnits)
+			child.setLogLevelInternal(logLevel);
+		return this;
+	}
+	
+	/**
+	 * Used internally to set the log level without changing the proper level. This is meant to be called by parent
+	 * units to change the level when the parent changes level.
+	 * 
+	 * @param logLevel
+	 *            - the level.
+	 */
+	void setLogLevelInternal(Level logLevel) {
 		level = logLevel;
+		if(log != null)
+			log.setLevel(logLevel);
+	}
+	
+	/**
+	 * Sets this log as highlighted. THe exact method of highlighting depends on the implementation of the
+	 * {@link LogWrapper}.
+	 * 
+	 * @return the unit itself.
+	 */
+	protected Unit setHighlighted() {
+		highlighted = true;
+		if(log != null)
+			log.setHighlighted(highlighted);
+		return this;
+	}
+	
+	/**
+	 * Sets this log as not highlighted.
+	 * 
+	 * @see #setHighlighted()
+	 * 
+	 * @return the unit itself.
+	 */
+	protected Unit setNotHighlighted() {
+		highlighted = false;
+		if(log != null)
+			log.setHighlighted(highlighted);
+		return this;
+	}
+	
+	/**
+	 * Creates a link between this unit and a parent unit. The parent unit may influence the level and the highlighting.
+	 * <p>
+	 * By default, all units have the {@link MasterLog} internal log as parent.
+	 * 
+	 * @param parent
+	 *            - the parent {@link Unit}.
+	 * @return the unit itself.
+	 */
+	protected Unit addParentUnit(Unit parent) {
+		if(parent == null)
+			return this;
+		if(parentUnits.add(parent)) {
+			parent.registerChild(this);
+			if(level != null && level.displayWith(parent.level))
+				setLogLevelInternal(parent.level);
+		}
+		return this;
+	}
+	
+	/**
+	 * Removes all links to parent units.
+	 * 
+	 * @return the unit itself.
+	 */
+	protected Unit removeAllParentUnits() {
+		for(Unit unit : parentUnits)
+			unit.unregisterChild(this);
+		parentUnits.clear();
+		return this;
+	}
+	
+	/**
+	 * Internal method to create a link between a unit and its child.
+	 * 
+	 * @param child
+	 *            - the child unit.
+	 * @return <code>true</code> if the child had nod been registered before.
+	 */
+	boolean registerChild(Unit child) {
+		return childrenUnits.add(child);
+	}
+	
+	/**
+	 * Internal method to remove the link between a unit and its child.
+	 * 
+	 * @param child
+	 *            - the child unit.
+	 * @return <code>true</code> if the child had been indeed registered.
+	 */
+	boolean unregisterChild(Unit child) {
+		return childrenUnits.remove(child);
+	}
+	
+	/**
+	 * Adds an output to the log.
+	 * <p>
+	 * If there have been previous log messages, it may be that a default output has been already added.
+	 * 
+	 * @see LogOutput
+	 * 
+	 * @param logOutput
+	 *            - the output to add.
+	 * @return the unit itself.
+	 */
+	protected Unit addOutput(LogOutput logOutput) {
+		buildLog();
+		log.addOutput(logOutput);
+		return this;
+	}
+	
+	/**
+	 * Removes a log output.
+	 * <p>
+	 * There is no effect if the log has not been built or has been already destroyed.
+	 * 
+	 * @param logOutput
+	 *            - the output to remove.
+	 * @return the unit itself.
+	 */
+	protected Unit removeOutput(LogOutput logOutput) {
+		if(log != null)
+			log.removeOutput(logOutput);
+		return this;
+	}
+	
+	/**
+	 * Removes all outputs of the log.
+	 * <p>
+	 * There is no effect if the log has not been built or has been already destroyed.
+	 * 
+	 * @return the unit itself.
+	 */
+	protected Unit removeAllOutputs() {
+		if(log != null)
+			log.removeAllOutputs();
 		return this;
 	}
 	
@@ -311,12 +463,10 @@ public class Unit extends Config {
 	 * As the Unit layer only manages logging, the only thing that happens is that the log exits (if any).
 	 */
 	protected void doExit() {
-		if(log != null && logName != null) {
-			Logging.exitLogger(logName);
+		if(log != null) {
+			log.exit();
 			log = null;
-			logName = null;
 		}
-		unitName = null;
 	}
 	
 	/**

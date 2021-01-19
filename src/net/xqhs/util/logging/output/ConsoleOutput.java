@@ -4,8 +4,12 @@ import java.io.OutputStream;
 
 import net.xqhs.util.logging.Logger;
 import net.xqhs.util.logging.Logger.Level;
-import net.xqhs.util.logging.logging.LogWrapper;
 
+/**
+ * An implementation of {@link LogOutput} which outputs logging messages to the system console.
+ * 
+ * @author Andrei Olaru
+ */
 public class ConsoleOutput implements StreamLogOutput {
 	
 	@Override
@@ -38,4 +42,8 @@ public class ConsoleOutput implements StreamLogOutput {
 		return System.out;
 	}
 	
+	@Override
+	public void exit() {
+		// nothing to do
+	}
 }

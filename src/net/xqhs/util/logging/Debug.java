@@ -11,28 +11,23 @@
  ******************************************************************************/
 package net.xqhs.util.logging;
 
-
 /**
  * Class containing different debug items that can be activated or deactivated by editing this class. Works together
- * with the method <code>dbg()</code> in {@link Logger} or similar implementations.
+ * with the method in {@link Logger#dbg(DebugItem, String, Object...)} or similar implementations.
  * <p>
- * For documentation purposes, classes containing {@link LocalDebugItem} enums should extend the {@link Debug} class.
- * <p>
- * Each project must contain its own class(es) extending {@link Debug}, holding an enum the implements {@link DebugItem}
- * , with a similar implementation to this one.
+ * Each project must contain its own enumerations implementing {@link DebugItem}, with a similar implementation to this
+ * one.
  * 
  * @author Andrei Olaru
  */
-public class Debug
-{
+public class Debug {
 	/**
 	 * This interface must be implemented by all enumerations of debug constants in order to be able to use them as
-	 * arguments of method <code>dbg()</code> in {@link Logger} implementations.
+	 * arguments of {@link Logger#dbg(DebugItem, String, Object...)} implementations.
 	 * 
 	 * @author Andrei Olaru
 	 */
-	public interface DebugItem
-	{
+	public interface DebugItem {
 		/**
 		 * Computes the activation state of the constant. The method is invoked during the <code>dbg()</code> call for
 		 * the specified debug constant.
@@ -43,40 +38,36 @@ public class Debug
 	}
 	
 	/**
-	 * Example enumeration implementing {@link DebugItem}.
+	 * The internal debug constants.
 	 * 
 	 * @author Andrei Olaru
 	 */
-	public enum LocalDebugItem implements DebugItem {
-		
+	public enum LogDebugItem implements DebugItem {
 		/**
-		 * Dummy/example debug item.
+		 * Tracing of log management.
 		 */
-		D_D(false),
+		D_LOG_MANAGEMENT(true),
 		
 		;
 		
 		/**
-		 * Activation state.
+		 * The activation state.
 		 */
-		boolean	isset;
+		private boolean isSet;
 		
 		/**
 		 * Default constructor.
 		 * 
-		 * @param set
+		 * @param isSet
 		 *            - activation state.
 		 */
-		private LocalDebugItem(boolean set)
-		{
-			isset = set;
+		private LogDebugItem(boolean isSet) {
+			this.isSet = isSet;
 		}
 		
 		@Override
-		public boolean toBool()
-		{
-			return isset;
+		public boolean toBool() {
+			return isSet;
 		}
 	}
-	
 }

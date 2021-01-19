@@ -13,8 +13,8 @@ package testing;
 
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.logging.Logging;
-import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.UnitComponentExt;
+import net.xqhs.util.logging.LogWrapper.LoggerType;
 
 @SuppressWarnings("javadoc")
 public class CompositeAgentLoaderClone

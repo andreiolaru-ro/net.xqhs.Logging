@@ -14,12 +14,12 @@ package testing;
 import java.util.Random;
 
 import net.xqhs.util.logging.Debug.DebugItem;
+import net.xqhs.util.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.DumbLogger;
+import net.xqhs.util.logging.LogWrapper;
 import net.xqhs.util.logging.LoggerClassic;
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.UnitComponent;
-import net.xqhs.util.logging.logging.LogWrapper;
-import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.logging.Logging;
 
 @SuppressWarnings("javadoc")

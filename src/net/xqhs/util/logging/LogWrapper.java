@@ -9,26 +9,32 @@
  * 
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.xqhs.util.logging.logging;
+package net.xqhs.util.logging;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import net.xqhs.util.logging.Logger;
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.output.LogOutput;
 import net.xqhs.util.logging.output.StreamLogOutput;
+import net.xqhs.util.logging.output.StringLogOutput;
 import net.xqhs.util.logging.wrappers.ModernLogWrapper;
 
 /**
- * Use this abstract class to implement any [wrapper of a] logging structure that is returned by {@link Logging}.
+ * Use this abstract class to implement any [wrapper of a] logging structure used in a {@link Unit}.
  * <p>
  * All types of wrappers available in the project should be stated in {@link LoggerType}.
  * <p>
- * It should work with a reduced set of levels (see {@link Level}).
+ * This class implements a basic management of name, level, highlighting, and also outputs and their associated
+ * {@link OutputStream}s. If the output is a {@link StringLogOutput}, a {@link ByteArrayOutputStream} will be created;
+ * if the output is a {@link StreamLogOutput}, the stream must be managed by the {@link StreamLogOutput} instance.
+ * <p>
+ * Extending this class requires at least implementing the {@link #l(Level, String)} method.
  * 
  * @author Andrei Olaru
  */
@@ -76,13 +82,25 @@ public abstract class LogWrapper {
 	}
 	
 	/**
+	 * The name for the log.
+	 */
+	protected String						name			= null;
+	/**
+	 * The current level for the log.
+	 */
+	protected Level							currentLevel	= Level.ERROR;
+	/**
+	 * The name for the log.
+	 */
+	protected boolean						highlight		= false;
+	/**
 	 * Additional output streams, besides the globalLogStream.
 	 */
-	protected List<SimpleEntry<LogOutput, OutputStream>>	logOutputs		= new ArrayList<>();
+	protected Map<LogOutput, OutputStream>	logOutputs		= new HashMap<>();
 	/**
 	 * Default format for output streams, if no other format is specified.
 	 */
-	protected static int									defaultFormat	= Logger.INCLUDE_NAME;
+	protected static int					defaultFormat	= Logger.INCLUDE_NAME;
 	
 	/**
 	 * Sets the level of the underlying log to a level that corresponds to the given instance of {@link Level},
@@ -91,7 +109,19 @@ public abstract class LogWrapper {
 	 * @param level
 	 *            - the desired log level.
 	 */
-	public abstract void setLevel(Level level);
+	public void setLevel(Level level) {
+		currentLevel = level;
+	}
+	
+	/**
+	 * Set whether the log is highlighted.
+	 * 
+	 * @param isHighlighted
+	 *            - <code>true</code> if highlighted, <code>false</code> otherwise.
+	 */
+	public void setHighlighted(boolean isHighlighted) {
+		highlight = isHighlighted;
+	}
 	
 	/**
 	 * Adds a log destination, as defined by a {@link LogOutput} instance. If the <code>logOutput</code> is an instance
@@ -102,10 +132,43 @@ public abstract class LogWrapper {
 	 *            - a log output.
 	 */
 	@SuppressWarnings("resource")
-	protected void addOutput(LogOutput logOutput) {
-		logOutputs.add(new SimpleEntry<>(logOutput,
-				logOutput instanceof StreamLogOutput ? ((StreamLogOutput) logOutput).getOutputStream()
-						: new ByteArrayOutputStream()));
+	public void addOutput(LogOutput logOutput) {
+		logOutputs.put(logOutput, logOutput instanceof StreamLogOutput ? ((StreamLogOutput) logOutput).getOutputStream()
+				: new ByteArrayOutputStream());
+	}
+	
+	/**
+	 * Remove a log destination.
+	 * 
+	 * @param logOutput
+	 *            - the output to remove.
+	 */
+	@SuppressWarnings("resource")
+	public void removeOutput(LogOutput logOutput) {
+		try {
+			OutputStream stream = logOutputs.get(logOutput);
+			if(stream != null) {
+				stream.flush();
+				if(logOutput instanceof StringLogOutput) {
+					((StringLogOutput) logOutput).update(stream.toString());
+					stream.close();
+				}
+				if(logOutput instanceof StreamLogOutput)
+					((StreamLogOutput) logOutput).update();
+			}
+		} catch(IOException e) {
+			System.out.println("[" + name + "] Log write error.");
+		}
+		logOutputs.remove(logOutput);
+	}
+	
+	/**
+	 * Removes all outputs used by the log.
+	 */
+	public void removeAllOutputs() {
+		List<LogOutput> outputs = new LinkedList<>(logOutputs.keySet());
+		for(LogOutput output : outputs)
+			removeOutput(output);
 	}
 	
 	/**
@@ -122,6 +185,7 @@ public abstract class LogWrapper {
 	/**
 	 * Instructs the underlying infrastructure to clear any information and actions related to this log.
 	 */
-	public abstract void exit();
-	
+	public void exit() {
+		removeAllOutputs();
+	}
 }

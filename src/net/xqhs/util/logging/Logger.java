@@ -12,8 +12,7 @@
 package net.xqhs.util.logging;
 
 import net.xqhs.util.logging.Debug.DebugItem;
-import net.xqhs.util.logging.logging.Logging;
-import net.xqhs.util.logging.logging.LogWrapper.LoggerType;
+import net.xqhs.util.logging.LogWrapper.LoggerType;
 
 /**
  * Any class that offers simple logging services (lf-li-lw-le-lr-dbg) to an external entity should implement this
@@ -132,19 +131,19 @@ public interface Logger {
 	/**
 	 * Include in the output the name of the log / of the unit producing the message.
 	 */
-	public final static int			INCLUDE_NAME			= 1 >> 0;
+	public final static int			INCLUDE_NAME			= 1 << 0;
 	/**
 	 * Include in the output the time of the message, in a detail form (e.g. HH:MM:SS.ssss or similar).
 	 */
-	public final static int			INCLUDE_DETAILED_TIME	= 1 >> 1;
+	public final static int			INCLUDE_DETAILED_TIME	= 1 << 1;
 	/**
 	 * Include in the output the system timestamp of the message.
 	 */
-	public final static int			INCLUDE_TIMESTAMP		= 1 >> 2;
+	public final static int			INCLUDE_TIMESTAMP		= 1 << 2;
 	/**
-	 * Replace in the output the endlines between messages with {@link Logging#AWESOME_SEPARATOR}.
+	 * Replace in the output the endlines between messages with {@link Logger#AWESOME_SEPARATOR}.
 	 */
-	public final static int			REPLACE_ENDLINES		= 1 >> 3;
+	public final static int			REPLACE_ENDLINES		= 1 << 3;
 	/**
 	 * The default log wrapper, as one of {@link LoggerType}.
 	 */

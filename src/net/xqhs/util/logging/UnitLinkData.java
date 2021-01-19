@@ -12,7 +12,6 @@
 package net.xqhs.util.logging;
 
 import net.xqhs.util.config.Config;
-import net.xqhs.util.logging.logging.LogWrapper;
 
 /**
  * A sub-configuration for linking the configured {@link LogWrapper} to another the "parent". Currently only the

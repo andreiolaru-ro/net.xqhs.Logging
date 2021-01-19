@@ -4,65 +4,88 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.xqhs.util.logging.LogWrapper;
 import net.xqhs.util.logging.Logger;
 import net.xqhs.util.logging.Logger.Level;
-import net.xqhs.util.logging.logging.LogWrapper;
 import net.xqhs.util.logging.output.LogOutput;
 import net.xqhs.util.logging.output.StreamLogOutput;
 import net.xqhs.util.logging.output.StringLogOutput;
 
 /**
  * A {@link LogWrapper} with improved readability and more flexibility in configuring output stream(s).
+ * <p>
+ * Highlighting is done by un-indenting non-highlighted logs.
  * 
  * @author Andrei Olaru
  */
 public class ModernLogWrapper extends LogWrapper {
 	/**
-	 * The current level for the log.
-	 */
-	Level			currentLevel		= Level.ERROR;
-	/**
-	 * The name for the log.
-	 */
-	String			name				= null;
-	/**
 	 * The current maximum width of a source name.
 	 */
-	static int		cSourceWidth		= 0;
+	static int								cSourceWidth		= 0;
 	/**
 	 * The format for padding the name, at a width of {@link #cSourceWidth}.
 	 */
-	static String	paddedNameFormat	= "%-1s";
-	
+	static String							paddedNameFormat	= "%-1s";
+	/**
+	 * Indent for entries of not highlighted logs.
+	 */
+	static String							unhighlightedIndent	= "\t\t\t\t";
 	/**
 	 * The detailed time format.
 	 */
-	static SimpleDateFormat			dateFormat		= new SimpleDateFormat("HH:mm:ss.SSSS");
+	static SimpleDateFormat					dateFormat			= new SimpleDateFormat("HH:mm:ss.SSSS");
+	/**
+	 * The set of highlighted logs, used to recognize if there are no highlighted logs.
+	 */
+	protected static Set<ModernLogWrapper>	highlightedLogs		= new HashSet<>();
 	/**
 	 * Update timers for logOutputs with update periods.
 	 */
-	protected Map<LogOutput, Timer>	updateTimers	= new HashMap<>();
+	protected Map<LogOutput, TimerTask>		updateTasks			= new HashMap<>();
+	/**
+	 * The timer for periodic updates.
+	 */
+	Timer									updateTimer			= null;
 	
+	/**
+	 * The task to update logs.
+	 */
 	class TTUpdate extends TimerTask {
+		/**
+		 * The output.
+		 */
 		LogOutput		logOutput	= null;
+		/**
+		 * The stream log messages are written to (for {@link StringLogOutput}).
+		 */
 		OutputStream	logStream	= null;
 		
+		/**
+		 * @param output
+		 *            the output.
+		 * @param stream
+		 *            stream log messages are written to (for {@link StringLogOutput}).
+		 */
 		public TTUpdate(LogOutput output, OutputStream stream) {
 			logOutput = output;
 			logStream = stream;
 		}
 		
+		/**
+		 * Calls the update method of the log output (depending on {@link LogOutput} type).
+		 */
 		@Override
 		public void run() {
+			updateTasks.remove(logOutput);
 			if(logOutput instanceof StreamLogOutput)
 				((StreamLogOutput) logOutput).update();
 			if(logOutput instanceof StringLogOutput) {
@@ -94,15 +117,23 @@ public class ModernLogWrapper extends LogWrapper {
 		name = logName;
 	}
 	
-	/**
-	 * Unused for this implementation
-	 * 
-	 * @param level
-	 *            the new level
-	 */
 	@Override
-	public void setLevel(Level level) {
-		currentLevel = level;
+	public void setHighlighted(boolean isHighlighted) {
+		super.setHighlighted(isHighlighted);
+		if(isHighlighted)
+			highlightedLogs.add(this);
+		else
+			highlightedLogs.remove(this);
+	}
+	
+	@Override
+	public void removeOutput(LogOutput logOutput) {
+		if(updateTasks.containsKey(logOutput))
+			updateTasks.get(logOutput).cancel();
+		updateTasks.remove(logOutput);
+		super.removeOutput(logOutput);
+		if(updateTasks.isEmpty() && updateTimer != null)
+			updateTimer.cancel();
 	}
 	
 	@SuppressWarnings("resource")
@@ -111,9 +142,8 @@ public class ModernLogWrapper extends LogWrapper {
 		if(logOutputs.isEmpty())
 			addOutput(LogOutput.DEFAULT_LOG_OUTPUT);
 		if(level.displayWith(currentLevel))
-			for(SimpleEntry<LogOutput, OutputStream> entry : logOutputs)
+			for(LogOutput logOutput : logOutputs.keySet())
 				try {
-					LogOutput logOutput = entry.getKey();
 					String logPost = logOutput.useCustomFormat() ? logOutput.format(level, name, message)
 							: format(logOutput.formatData(), level, message);
 					if(logOutput instanceof StreamLogOutput) {
@@ -127,19 +157,30 @@ public class ModernLogWrapper extends LogWrapper {
 						if(logOutput.getUpdatePeriod() <= 0)
 							((StringLogOutput) logOutput).update(logPost);
 						else {
-							entry.getValue().write(logPost.getBytes());
-							postUpdate(logOutput, entry.getValue());
+							logOutputs.get(logOutput).write(logPost.getBytes());
+							postUpdate(logOutput, logOutputs.get(logOutput));
 						}
 				} catch(IOException e) {
 					System.out.println(format(Logger.INCLUDE_NAME, Level.ERROR, "Log write error."));
 				}
 	}
 	
+	/**
+	 * Post an update to a log, either by updating immediately or by creating a timer task so as to update the output
+	 * later.
+	 * 
+	 * @param logOutput
+	 * @param stream
+	 */
 	protected void postUpdate(LogOutput logOutput, OutputStream stream) {
-		if(updateTimers.get(logOutput) != null)
+		if(updateTasks.get(logOutput) != null)
+			// there is already an update tasks scheduled.
 			return;
-		updateTimers.put(logOutput, new Timer());
-		updateTimers.get(logOutput).schedule(new TTUpdate(logOutput, stream), logOutput.getUpdatePeriod());
+		if(updateTimer == null) {
+			updateTimer = new Timer();
+		}
+		updateTasks.put(logOutput, new TTUpdate(logOutput, stream));
+		updateTimer.schedule(updateTasks.get(logOutput), logOutput.getUpdatePeriod());
 	}
 	
 	/**
@@ -154,7 +195,7 @@ public class ModernLogWrapper extends LogWrapper {
 	 * @return the formatted string exactly how it should be sent to output.
 	 */
 	protected String format(int format, Level level, String message) {
-		String formattedMessage = "";
+		String formattedMessage = highlight || highlightedLogs.isEmpty() ? "" : unhighlightedIndent;
 		Date time = new Date();
 		if((format & Logger.INCLUDE_TIMESTAMP) > 0)
 			formattedMessage += time.getTime() + " ";
@@ -167,7 +208,7 @@ public class ModernLogWrapper extends LogWrapper {
 			formattedMessage += "[ " + String.format(paddedNameFormat, name) + " ] ";
 		}
 		if((format & Logger.INCLUDE_DETAILED_TIME) > 0) {
-			formattedMessage += "[" + dateFormat.format(time) + "]";
+			formattedMessage += "[" + dateFormat.format(time) + "] ";
 		}
 		formattedMessage += message;
 		if((format & Logger.REPLACE_ENDLINES) > 0)
@@ -180,5 +221,8 @@ public class ModernLogWrapper extends LogWrapper {
 	@Override
 	public void exit() {
 		l(Level.INFO, name + " exited");
+		super.exit();
+		if(updateTimer != null)
+			updateTimer.cancel();
 	}
 }

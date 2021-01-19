@@ -10,7 +10,7 @@
  * You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 /**
- * This package contains a default set of wrappers for some well-known logging infrastructures.
+ * This package contains a {@link net.xqhs.util.logging.LogWrapper} instances.
  */
 package net.xqhs.util.logging.wrappers;
 
