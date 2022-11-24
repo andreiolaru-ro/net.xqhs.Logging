@@ -10,7 +10,7 @@
   
   You should have received a copy of the GNU General Public License along with Logging.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<project name="Logging-light" default="complete-export" basedir="../">
+<project name="Logging-modern" default="complete-export" basedir="../">
 	<property name="packages" value="net.xqhs.util.logging" />
 
 	<property name="project-name" value="${ant.project.name}" />
@@ -88,7 +88,7 @@
 	</target>
 
 	<target name="complete-export"
-	        depends="javadoc,pack,pack-java6,fullpack,copy-importer"
-	/>
+	        depends="javadoc,pack,fullpack,copy-importer"
+	/> <!-- pack-java6, -->
 
 </project>
