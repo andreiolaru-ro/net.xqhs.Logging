@@ -78,6 +78,11 @@ public class UnitComponent extends Unit implements Logger {
 	}
 	
 	@Override
+	public UnitComponent setPerformanceMode(boolean performance) {
+		return (UnitComponent) super.setPerformanceMode(performance);
+	}
+	
+	@Override
 	public UnitComponent addOutput(LogOutput logOutput) {
 		return (UnitComponent) super.addOutput(logOutput);
 	}

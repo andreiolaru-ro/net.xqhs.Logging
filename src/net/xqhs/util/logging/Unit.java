@@ -18,8 +18,8 @@ import net.xqhs.util.config.Config;
 import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.Logger.Level;
-import net.xqhs.util.logging.wrappers.LogWrapperFactory;
 import net.xqhs.util.logging.output.LogOutput;
+import net.xqhs.util.logging.wrappers.LogWrapperFactory;
 
 /**
  * The Unit class should be extended by classes in which logging primitives should be available without creating a
@@ -59,12 +59,25 @@ public class Unit extends Config {
 	/**
 	 * The value that should be used to state that the name of the unit should be computed depending on the class name.
 	 */
-	public final static String	DEFAULT_UNIT_NAME	= "theDefaulUnitName";
-	/**
-	 * The default level for the log, if no other level is set.
-	 */
-	public final static Level	DEFAULT_LEVEL		= Level.ALL;
+	public final static String DEFAULT_UNIT_NAME = "theDefaulUnitName";
 	
+	//////////////// performance mode
+	@SuppressWarnings("javadoc")
+	static class LogEntry {
+		LogWrapper	log;
+		Level		level;
+		String		message;
+		Object[]	objects;
+		
+		public LogEntry(LogWrapper l, Level lev, String msg, Object[] objs) {
+			log = l;
+			level = lev;
+			message = msg;
+			objects = objs;
+		}
+	}
+	
+	//////////////// log properties
 	/**
 	 * The name of the {@link Unit}. See {@link Unit} for details.
 	 */
@@ -85,6 +98,10 @@ public class Unit extends Config {
 	 * The current level of the log. This may be influenced by the level of parent unit.
 	 */
 	Level		level				= null;
+	/**
+	 * Enables performance mode for this log.
+	 */
+	boolean		performanceMode		= false;
 	/**
 	 * The level that has been explicitly set by a {@link #setLogLevel(Level)} call for this instance.
 	 */
@@ -169,6 +186,10 @@ public class Unit extends Config {
 		log = LogWrapperFactory.getLogWrapper(loggerWrapperType, logName);
 		setLogLevelInternal(level);
 		log.setHighlighted(highlighted);
+		if(MasterLog.GLOBAL_PERFORMANCE_MODE)
+			setPerformanceMode(true);
+		MasterLog.masterLog.lock();
+		// MasterLog.masterLog.lf("new log [] (now [] logs).", unitName, nlogs));
 		return this;
 	}
 	
@@ -243,7 +264,7 @@ public class Unit extends Config {
 			logName = unitName;
 		if((logName != null) && (level == null))
 			// set default level
-			setLogLevel(DEFAULT_LEVEL);
+			setLogLevel(MasterLog.defaultLevel);
 		
 		return this;
 	}
@@ -344,6 +365,13 @@ public class Unit extends Config {
 		highlighted = false;
 		if(log != null)
 			log.setHighlighted(highlighted);
+		return this;
+	}
+	
+	protected Unit setPerformanceMode(boolean performance) {
+		performanceMode = performance;
+		if(performanceMode)
+			MasterLog.enablePerformanceModeTools();
 		return this;
 	}
 	
@@ -466,6 +494,9 @@ public class Unit extends Config {
 		if(log != null) {
 			log.exit();
 			log = null;
+		}
+		if(MasterLog.masterLog == this) {
+			MasterLog.closePerformaceElements();
 		}
 	}
 	
@@ -604,7 +635,10 @@ public class Unit extends Config {
 	protected void l(Level messageLevel, String message, Object... arguments) {
 		buildLog();
 		if((log != null) && messageLevel.displayWith(level))
-			log.l(messageLevel, compose(message, arguments));
+			if(performanceMode && MasterLog.processingQueue != null)
+				MasterLog.processingQueue.add(new LogEntry(log, messageLevel, message, arguments));
+			else
+				log.l(messageLevel, compose(message, arguments));
 	}
 	
 	/**

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import net.xqhs.util.logging.Logger;
+import net.xqhs.util.logging.MasterLog;
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.Unit;
 import net.xqhs.util.logging.UnitComponent;
@@ -34,8 +35,10 @@ public class LogTester2 extends LogTester {
 	public static void main(String[] args) {
 		
 		System.out.println("\n\n=================== Unit Component ====================\n\n");
+//		MasterLog.activateGlobalPerformanceMode();
 		
 		Map<String, UnitComponent> logs = new HashMap<>();
+//		MasterLog.setDefaultLogLevel(Level.OFF);
 		
 		String[] sources = new String[] { "Short", "Short2", "VSh", "MediumSource", "A-Longer-Source",
 				"A-Very-Long-Logging-Source" };
@@ -88,7 +91,7 @@ public class LogTester2 extends LogTester {
 			Level level = levelPicker();
 			logs.get(source).l(level, "Some [] logging message", level.toString());
 			try {
-				Thread.sleep(100);
+				Thread.sleep(50);
 			} catch(InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -96,16 +99,19 @@ public class LogTester2 extends LogTester {
 				logs.get("Short").setNotHighlighted();
 			if(i == 50)
 				logs.get("VSh").setNotHighlighted();
+			if(i == 30)
+				logs.get("VSh").setPerformanceMode(true);
 		}
+		
 		logs.get("VSh").le("Last message");
 		for(String source : sources)
 			logs.get(source).doExit();
-//		for(UnitTester u : unit)
-//			u.doExit();
-		
+		for(UnitTester u : unit)
+			u.doExit();
+		MasterLog.doExit();
 		System.out.println("\n\n=================== Backwards compatibility ====================\n\n");
 		
 		// test console logger
-		
+		System.out.println("\n\n=================== END ====================\n\n");
 	}
 }
