@@ -491,6 +491,7 @@ public class Unit extends Config {
 	 * As the Unit layer only manages logging, the only thing that happens is that the log exits (if any).
 	 */
 	protected void doExit() {
+		l(Level.INFO, "log exit.");
 		if(log != null) {
 			log.exit();
 			log = null;

@@ -10,6 +10,8 @@
     * implement setting MasterLog.exitWithLastLog()
     
   * what if some logs have performance mode and other don't - log messages will be scrambled.
-  
+  * highlighting mode is instantaneous, and is incompatible with delayed showing of logs, done above the log wrapper
+  * padding whould be split into highlighted and not-highlighted logs
+  * masterLog exit means all logs exit? Should this be correct?
   
   * Documentation (including updateing already documented items

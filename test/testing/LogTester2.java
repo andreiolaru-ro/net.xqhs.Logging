@@ -35,7 +35,8 @@ public class LogTester2 extends LogTester {
 	public static void main(String[] args) {
 		
 		System.out.println("\n\n=================== Unit Component ====================\n\n");
-//		MasterLog.activateGlobalPerformanceMode();
+		MasterLog.enablePerformanceModeTools(8000);
+		MasterLog.activateGlobalPerformanceMode();
 		
 		Map<String, UnitComponent> logs = new HashMap<>();
 //		MasterLog.setDefaultLogLevel(Level.OFF);
@@ -97,8 +98,8 @@ public class LogTester2 extends LogTester {
 			}
 			if(i == 70)
 				logs.get("Short").setNotHighlighted();
-			if(i == 50)
-				logs.get("VSh").setNotHighlighted();
+//			if(i == 50)
+//				logs.get("VSh").setNotHighlighted();
 			if(i == 30)
 				logs.get("VSh").setPerformanceMode(true);
 		}
@@ -108,7 +109,7 @@ public class LogTester2 extends LogTester {
 			logs.get(source).doExit();
 		for(UnitTester u : unit)
 			u.doExit();
-		MasterLog.doExit();
+//		MasterLog.doExit();
 		System.out.println("\n\n=================== Backwards compatibility ====================\n\n");
 		
 		// test console logger

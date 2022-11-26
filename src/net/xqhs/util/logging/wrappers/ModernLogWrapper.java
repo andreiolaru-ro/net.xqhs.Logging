@@ -220,7 +220,6 @@ public class ModernLogWrapper extends LogWrapper {
 	
 	@Override
 	public void exit() {
-		l(Level.INFO, name + " exited");
 		super.exit();
 		if(updateTimer != null)
 			updateTimer.cancel();
