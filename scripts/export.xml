@@ -45,7 +45,7 @@
 		         version="true"
 		>
 			<header>
-				Copyright (C) 2013 Andrei Olaru under the GNU General Public License. See &lt;a href=\"http://www.gnu.org/licenses/\"&gt;http://www.gnu.org/licenses/&lt;/a&gt;.
+				Copyright (C) 2023 Andrei Olaru under the GNU General Public License. See &lt;a href=\"http://www.gnu.org/licenses/\"&gt;http://www.gnu.org/licenses/&lt;/a&gt;.
 			</header>
 		</javadoc>
 	</target>

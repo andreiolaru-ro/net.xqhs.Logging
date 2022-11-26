@@ -20,16 +20,12 @@
 	<property name="import-directory" value="." />
 
 	<!-- the target for the current project -->
-	<target name="Logging" depends="Log4J,Config">
+	<target name="Logging" depends="Config">
 		<copy file="../${import-directory}/Logging/deploy/Logging.jar" todir="lib/" />
 	</target>
 	
 	<target name="Config">
 		<copy file="../${import-directory}/Logging/deploy/Config.jar" todir="lib/" />
 	</target>
-	<target name="Log4J">
-		<copy file="../${import-directory}/Logging/deploy/log4j-1.2.16.jar" todir="lib/" />
-	</target>
-		
 	<target name="import" depends="Logging" />
 </project>
