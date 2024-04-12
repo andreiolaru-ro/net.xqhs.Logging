@@ -134,7 +134,8 @@ public class MasterLog {
 	}
 	
 	/**
-	 * Processes the logging entries so far.
+	 * The function in the separate performance mode thread, which processes entries in the {@link #processingQueue}
+	 * every {@link #TIME_STEP}.
 	 */
 	protected static void processQueue() {
 		while(processingQueue != null) {
@@ -148,17 +149,26 @@ public class MasterLog {
 		}
 	}
 	
+	/**
+	 * Outputs all messages in the {@link #processingQueue}.
+	 */
 	protected static void processAll() {
 		while(processingQueue != null && !processingQueue.isEmpty()) {
 			LogEntry entry = processingQueue.poll();
 			entry.log.l(entry.level, Unit.compose(entry.message, entry.objects));
 		}
 	}
-
+	
+	/**
+	 * Closes the master log.
+	 */
 	public static void doExit() {
 		masterLog.doExit();
 	}
-
+	
+	/**
+	 * Closes all separate processing for logging messages, effectively disabling the performance mode.
+	 */
 	protected static void closePerformaceElements() {
 		if(processingQueue != null)
 			processAll();
@@ -170,6 +180,6 @@ public class MasterLog {
 			} catch(InterruptedException e) {
 				e.printStackTrace();
 			}
-		processingThread = null;		
+		processingThread = null;
 	}
 }

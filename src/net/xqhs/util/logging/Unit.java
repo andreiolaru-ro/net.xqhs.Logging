@@ -11,8 +11,11 @@
  ******************************************************************************/
 package net.xqhs.util.logging;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.xqhs.util.config.Config;
 import net.xqhs.util.logging.Debug.DebugItem;
@@ -368,6 +371,14 @@ public class Unit extends Config {
 		return this;
 	}
 	
+	/**
+	 * Activates / deactivates performance mode for this instance, so that output of log entries is done in an
+	 * asynchronous manner.
+	 * 
+	 * @param performance
+	 *            -- <code>true</code> if the mode should be activated, <code>false</code> otherwise.
+	 * @return the unit itself.
+	 */
 	protected Unit setPerformanceMode(boolean performance) {
 		performanceMode = performance;
 		if(performanceMode)
@@ -636,8 +647,11 @@ public class Unit extends Config {
 	protected void l(Level messageLevel, String message, Object... arguments) {
 		buildLog();
 		if((log != null) && messageLevel.displayWith(level))
-			if(performanceMode && MasterLog.processingQueue != null)
-				MasterLog.processingQueue.add(new LogEntry(log, messageLevel, message, arguments));
+			if(performanceMode && MasterLog.processingQueue != null) {
+				List<String> args = Arrays.asList(arguments).stream().map(obj -> obj != null ? obj.toString() : "null")
+						.collect(Collectors.toList());
+				MasterLog.processingQueue.add(new LogEntry(log, messageLevel, message, args.toArray()));
+			}
 			else
 				log.l(messageLevel, compose(message, arguments));
 	}
