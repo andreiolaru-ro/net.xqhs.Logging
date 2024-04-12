@@ -15,7 +15,7 @@
 
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="doc-access-level" value="private" />
-	<property name="java-version" value="1.7" />
+	<property name="java-version" value="1.8" />
 
 
 	<property name="libs.dir" location="lib" />
