@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.Logger;
-import net.xqhs.util.logging.MasterLog;
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.Unit;
 import net.xqhs.util.logging.UnitComponent;
@@ -13,7 +13,7 @@ import net.xqhs.util.logging.output.ConsoleOutput;
 import net.xqhs.util.logging.output.StringLogOutput;
 
 @SuppressWarnings("javadoc")
-public class LogTester2 extends LogTester {
+public class LogTester2 {
 	
 	static class UnitTester extends Unit {
 		public UnitTester(String name) {
@@ -32,14 +32,46 @@ public class LogTester2 extends LogTester {
 		}
 	}
 	
+	enum LocalDebug implements DebugItem {
+		DO_DEBUG(true)
+		
+		;
+		
+		boolean value;
+		
+		private LocalDebug(boolean value) {
+			this.value = value;
+		}
+		
+		@Override
+		public boolean toBool() {
+			return value;
+		}
+	}
+	
+	public static String someMethod(UnitComponent log) {
+		return (String) log.lr("test", "i am [] here", "standing");
+	}
+	
+	public static Level levelPicker() {
+		int r = new Random().nextInt(10);
+		if(r < 1)
+			return Level.ERROR;
+		if(r < 3)
+			return Level.WARN;
+		if(r < 7)
+			return Level.INFO;
+		return Level.TRACE;
+	}
+	
 	public static void main(String[] args) {
 		
 		System.out.println("\n\n=================== Unit Component ====================\n\n");
-		MasterLog.enablePerformanceModeTools(8000);
-		MasterLog.activateGlobalPerformanceMode();
+//		MasterLog.enablePerformanceModeTools(2000);
+//		MasterLog.activateGlobalPerformanceMode();
 		
 		Map<String, UnitComponent> logs = new HashMap<>();
-//		MasterLog.setDefaultLogLevel(Level.OFF);
+		// MasterLog.setDefaultLogLevel(Level.OFF);
 		
 		String[] sources = new String[] { "Short", "Short2", "VSh", "MediumSource", "A-Longer-Source",
 				"A-Very-Long-Logging-Source" };
@@ -98,8 +130,8 @@ public class LogTester2 extends LogTester {
 			}
 			if(i == 70)
 				logs.get("Short").setNotHighlighted();
-//			if(i == 50)
-//				logs.get("VSh").setNotHighlighted();
+			// if(i == 50)
+			// logs.get("VSh").setNotHighlighted();
 			if(i == 30)
 				logs.get("VSh").setPerformanceMode(true);
 		}
@@ -109,7 +141,7 @@ public class LogTester2 extends LogTester {
 			logs.get(source).doExit();
 		for(UnitTester u : unit)
 			u.doExit();
-//		MasterLog.doExit();
+		// MasterLog.doExit();
 		System.out.println("\n\n=================== Backwards compatibility ====================\n\n");
 		
 		// test console logger
