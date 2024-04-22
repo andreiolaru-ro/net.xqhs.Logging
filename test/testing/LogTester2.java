@@ -1,5 +1,6 @@
 package testing;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -7,9 +8,11 @@ import java.util.Random;
 import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.Logger;
 import net.xqhs.util.logging.Logger.Level;
+import net.xqhs.util.logging.MasterLog;
 import net.xqhs.util.logging.Unit;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.output.ConsoleOutput;
+import net.xqhs.util.logging.output.FileOutput;
 import net.xqhs.util.logging.output.StringLogOutput;
 
 @SuppressWarnings("javadoc")
@@ -64,12 +67,17 @@ public class LogTester2 {
 		return Level.TRACE;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		
 		System.out.println("\n\n=================== Unit Component ====================\n\n");
 //		MasterLog.enablePerformanceModeTools(2000);
 //		MasterLog.activateGlobalPerformanceMode();
-		
+		MasterLog.addDefaultOutput(new ConsoleOutput());
+		MasterLog.addDefaultOutput(new FileOutput("G:\\CercetareSEM2\\net.xqhs.Logging\\test\\testing\\file\\testOutput.txt"));
+
+
+
+
 		Map<String, UnitComponent> logs = new HashMap<>();
 		// MasterLog.setDefaultLogLevel(Level.OFF);
 		

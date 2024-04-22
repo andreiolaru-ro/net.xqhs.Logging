@@ -22,6 +22,7 @@ import net.xqhs.util.logging.Debug.DebugItem;
 import net.xqhs.util.logging.LogWrapper.LoggerType;
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.output.LogOutput;
+import net.xqhs.util.logging.output.OutputBuilder;
 import net.xqhs.util.logging.wrappers.LogWrapperFactory;
 
 /**
@@ -105,6 +106,8 @@ public class Unit extends Config {
 	 * Enables performance mode for this log.
 	 */
 	boolean		performanceMode		= false;
+
+	OutputBuilder outputBuilder = null;
 	/**
 	 * The level that has been explicitly set by a {@link #setLogLevel(Level)} call for this instance.
 	 */
@@ -187,6 +190,10 @@ public class Unit extends Config {
 		if(loggerWrapperType == null)
 			loggerWrapperType = Logger.DEFAULT_LOGGER_WRAPPER;
 		log = LogWrapperFactory.getLogWrapper(loggerWrapperType, logName);
+		for(LogOutput logOutput : MasterLog.outputSet)
+		{
+			log.addOutput(logOutput);
+		}
 		setLogLevelInternal(level);
 		log.setHighlighted(highlighted);
 		if(MasterLog.GLOBAL_PERFORMANCE_MODE)
@@ -328,6 +335,12 @@ public class Unit extends Config {
 		setLogLevelInternal(logLevel);
 		for(Unit child : childrenUnits)
 			child.setLogLevelInternal(logLevel);
+		return this;
+	}
+
+	protected Unit setOutputOption(OutputBuilder outputBuilder)
+	{
+		this.outputBuilder = outputBuilder;
 		return this;
 	}
 	

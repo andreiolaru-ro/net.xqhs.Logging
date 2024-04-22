@@ -1,9 +1,14 @@
 package net.xqhs.util.logging;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.Unit.LogEntry;
+import net.xqhs.util.logging.output.LogOutput;
+import net.xqhs.util.logging.output.OutputBuilder;
+import sun.rmi.runtime.Log;
 
 /**
  * The class manages static, global settings that span over all logs. Among these are:
@@ -35,6 +40,9 @@ public class MasterLog {
 	 * The global performance mode cannot be disabled.
 	 */
 	protected static boolean						GLOBAL_PERFORMANCE_MODE	= false;
+
+	protected static OutputBuilder outputBuilder = null ;
+
 	/**
 	 * For <i>performance mode</i>, this stores the messages that need to be posted to the log.
 	 * <p>
@@ -49,7 +57,9 @@ public class MasterLog {
 	 * For logs in <i>performance mode</i>, this is the (minimum) time between writings to the output, in milliseconds.
 	 */
 	protected static long							TIME_STEP				= 1000;
-	
+
+	protected static Set<LogOutput> outputSet = null;
+
 	/**
 	 * The level of the master unit, which may propagate to other logs.
 	 * 
@@ -58,6 +68,23 @@ public class MasterLog {
 	 */
 	public static void setLogLevel(Level level) {
 		masterLog.setLogLevel(level);
+	}
+
+	public static void addDefaultOutput(LogOutput logOutput)
+	{
+		if(outputSet==null)
+		{
+			outputSet = new HashSet<LogOutput>();
+			outputSet.add(logOutput);
+		}
+		else{
+			outputSet.add(logOutput);
+		}
+	}
+
+	public static void setOutputOption(OutputBuilder outputBuilder)
+	{
+		masterLog.setOutputOption(outputBuilder);
 	}
 	
 	/**
