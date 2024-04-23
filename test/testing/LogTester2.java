@@ -6,14 +6,12 @@ import java.util.Map;
 import java.util.Random;
 
 import net.xqhs.util.logging.Debug.DebugItem;
-import net.xqhs.util.logging.Logger;
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.MasterLog;
 import net.xqhs.util.logging.Unit;
 import net.xqhs.util.logging.UnitComponent;
 import net.xqhs.util.logging.output.ConsoleOutput;
 import net.xqhs.util.logging.output.FileOutput;
-import net.xqhs.util.logging.output.StringLogOutput;
 
 @SuppressWarnings("javadoc")
 public class LogTester2 {
@@ -73,7 +71,7 @@ public class LogTester2 {
 //		MasterLog.enablePerformanceModeTools(2000);
 //		MasterLog.activateGlobalPerformanceMode();
 		MasterLog.addDefaultOutput(new ConsoleOutput());
-		MasterLog.addDefaultOutput(new FileOutput("G:\\CercetareSEM2\\net.xqhs.Logging\\test\\testing\\file\\testOutput.txt"));
+		MasterLog.addDefaultOutput(new FileOutput("test/testing/file/testOutput.txt"));
 
 
 
@@ -94,37 +92,6 @@ public class LogTester2 {
 		unit[2].setLogLevel(Level.ERROR);
 		
 		logs.get("Short").setHighlighted();
-		logs.get("VSh").setHighlighted().addOutput(new ConsoleOutput()).addOutput(new StringLogOutput() {
-			@Override
-			public boolean useCustomFormat() {
-				return false;
-			}
-			
-			@Override
-			public int getUpdatePeriod() {
-				return 2000;
-			}
-			
-			@Override
-			public int formatData() {
-				return Logger.INCLUDE_DETAILED_TIME;
-			}
-			
-			@Override
-			public String format(Level level, String source, String message) {
-				return null;
-			}
-			
-			@Override
-			public void update(String update) {
-				System.out.println(update);
-			}
-			
-			@Override
-			public boolean updateWithEntireLog() {
-				return true;
-			}
-		});
 		
 		Random rand = new Random();
 		for(int i = 0; i < 100; i++) {

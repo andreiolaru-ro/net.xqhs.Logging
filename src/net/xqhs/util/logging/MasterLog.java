@@ -8,7 +8,6 @@ import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.Unit.LogEntry;
 import net.xqhs.util.logging.output.LogOutput;
 import net.xqhs.util.logging.output.OutputBuilder;
-import sun.rmi.runtime.Log;
 
 /**
  * The class manages static, global settings that span over all logs. Among these are:
@@ -74,7 +73,7 @@ public class MasterLog {
 	{
 		if(outputSet==null)
 		{
-			outputSet = new HashSet<LogOutput>();
+			outputSet = new HashSet<>();
 			outputSet.add(logOutput);
 		}
 		else{
