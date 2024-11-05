@@ -7,7 +7,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import net.xqhs.util.logging.Logger.Level;
 import net.xqhs.util.logging.Unit.LogEntry;
 import net.xqhs.util.logging.output.LogOutput;
-import net.xqhs.util.logging.output.OutputBuilder;
 
 /**
  * The class manages static, global settings that span over all logs. Among these are:
@@ -39,8 +38,6 @@ public class MasterLog {
 	 * The global performance mode cannot be disabled.
 	 */
 	protected static boolean						GLOBAL_PERFORMANCE_MODE	= false;
-
-	protected static OutputBuilder outputBuilder = null ;
 
 	/**
 	 * For <i>performance mode</i>, this stores the messages that need to be posted to the log.
@@ -79,11 +76,6 @@ public class MasterLog {
 		else{
 			outputSet.add(logOutput);
 		}
-	}
-
-	public static void setOutputOption(OutputBuilder outputBuilder)
-	{
-		masterLog.setOutputOption(outputBuilder);
 	}
 	
 	/**
