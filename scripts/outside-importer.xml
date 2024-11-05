@@ -21,11 +21,11 @@
 
 	<!-- the target for the current project -->
 	<target name="Logging" depends="Config">
-		<copy file="../${import-directory}/Logging/deploy/Logging.jar" todir="lib/" />
+		<copy file="../${import-directory}/net.xqhs.Logging/deploy/Logging-modern.jar" todir="lib/" />
 	</target>
 	
 	<target name="Config">
-		<copy file="../${import-directory}/Logging/deploy/Config.jar" todir="lib/" />
+		<copy file="../${import-directory}/net.xqhs.Logging/deploy/Config.jar" todir="lib/" />
 	</target>
 	<target name="import" depends="Logging" />
 </project>
