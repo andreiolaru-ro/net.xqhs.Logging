@@ -148,15 +148,15 @@ public class ModernLogWrapper extends LogWrapper {
 							: format(logOutput.formatData(), level, message);
 					if(logOutput instanceof StreamLogOutput) {
 						((StreamLogOutput) logOutput).getOutputStream().write(logPost.getBytes());
-						if(logOutput.getUpdatePeriod() <= 0)
+						if(logOutput.getUpdatePeriod() == 0)
 							((StreamLogOutput) logOutput).update();
-						else
+						else if(logOutput.getUpdatePeriod() > 0)
 							postUpdate(logOutput, null);
 					}
 					else if(logOutput instanceof StringLogOutput)
-						if(logOutput.getUpdatePeriod() <= 0)
+						if(logOutput.getUpdatePeriod() == 0)
 							((StringLogOutput) logOutput).update(logPost);
-						else {
+						else if(logOutput.getUpdatePeriod() > 0) {
 							logOutputs.get(logOutput).write(logPost.getBytes());
 							postUpdate(logOutput, logOutputs.get(logOutput));
 						}

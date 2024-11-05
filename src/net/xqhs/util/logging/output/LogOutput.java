@@ -21,13 +21,15 @@ public interface LogOutput {
 	public final static LogOutput DEFAULT_LOG_OUTPUT = new ConsoleOutput();
 	
 	/**
-	 * An update period equal or lower than 0 means that the output should be updated immediately.
+	 * An update period equal to 0 means that the output should be updated immediately with each new log message.
 	 * <p>
-	 * A positive number represents the number of seconds at which to update the output.
+	 * A positive number represents the number of milliseconds at which to update the output.
+	 * <p>
+	 * A negative value means that the log should never / will never be flushed explicitly.
 	 * 
 	 * @return the update period.
 	 */
-	public int getUpdatePeriod();
+	public long getUpdatePeriod();
 	
 	/**
 	 * @return the format information, assembled via bitwise operations from constants in {@link Logger}. This

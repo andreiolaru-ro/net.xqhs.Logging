@@ -13,7 +13,7 @@ import net.xqhs.util.logging.Logger.Level;
 public class ConsoleOutput implements StreamLogOutput {
 	
 	@Override
-	public int getUpdatePeriod() {
+	public long getUpdatePeriod() {
 		return 0;
 	}
 	

@@ -1,5 +1,6 @@
 package net.xqhs.util.logging.output;
 
+import net.xqhs.util.logging.LogWrapper;
 import net.xqhs.util.logging.Logger;
 
 import java.io.*;
@@ -12,22 +13,44 @@ public class FileOutput implements StreamLogOutput {
 	/**
 	 * The stream to write to.
 	 */
-	private final FileOutputStream outputStream;
+	protected final FileOutputStream	outputStream;
+	/**
+	 * The number of milliseconds at which the stream should be flushed.
+	 */
+	protected long						updatePeriod;
 	
 	/**
 	 * Builds a new file output, based on a file.
 	 * 
 	 * @param path
 	 *            - the path to the file, to be given to {@link FileOutputStream#FileOutputStream(String)}.
+	 * @param flushEvery
+	 *            - the number of milliseconds at which the stream should be flushed. If zero, the log is flushed every
+	 *            time; if negative, the log is <b>never</b> explicitly flushed. This value will be returned by
+	 *            {@link #getUpdatePeriod()} to the {@link LogWrapper}.
+	 * @throws FileNotFoundException
+	 */
+	public FileOutput(String path, long flushEvery) throws FileNotFoundException {
+		outputStream = new FileOutputStream(path);
+	}
+	
+	/**
+	 * Calls {@link #FileOutput(String, long)} with <code>0</code> for the second parameter.
+	 * 
+	 * @param path
 	 * @throws FileNotFoundException
 	 */
 	public FileOutput(String path) throws FileNotFoundException {
-		outputStream = new FileOutputStream(path);
+		this(path, -1);
 	}
 	
 	@Override
 	public void update() {
-		// nothing to do.
+		try {
+			outputStream.flush();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -45,8 +68,8 @@ public class FileOutput implements StreamLogOutput {
 	}
 	
 	@Override
-	public int getUpdatePeriod() {
-		return 0;
+	public long getUpdatePeriod() {
+		return updatePeriod;
 	}
 	
 	@Override
