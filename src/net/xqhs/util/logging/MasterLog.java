@@ -14,6 +14,9 @@ import net.xqhs.util.logging.output.LogOutput;
  * <li>setting the default {@link java.util.logging.Level} for new logs
  * <li>setting global <i>performance mode</i> and management of performance mode elements, namely the thread and queue
  * used for processing logging messages.
+ * <li>setting the default outputs -- the instances of {@link LogOutput} that will automatically be added to all
+ * {@link Unit}s. If no instance is added explicitly via {@link #addDefaultOutput}, the ModerLogWrapper automatically
+ * uses the console output.
  * </ul>
  * <p>
  * It contains a singleton {@link Unit} (the "master" unit) which is added automatically as parent to all logs.
@@ -56,7 +59,7 @@ public class MasterLog {
 	/**
 	 * The set of {@link LogOutput} instances to which all {@link Unit}s should publish their logs.
 	 */
-	protected static Set<LogOutput>					outputSet			= null;
+	protected static Set<LogOutput>					outputSet			= new HashSet<>();
 	
 	/**
 	 * The level of the master unit, which may propagate to other logs.
@@ -75,8 +78,6 @@ public class MasterLog {
 	 *            - a {@link LogOutput} instance to which all {@link Unit}s should send logs.
 	 */
 	public static void addDefaultOutput(LogOutput logOutput) {
-		if(outputSet == null)
-			outputSet = new HashSet<>();
 		outputSet.add(logOutput);
 	}
 	
