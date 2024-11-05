@@ -5,7 +5,9 @@ import net.xqhs.util.logging.Logger;
 import net.xqhs.util.logging.Logger.Level;
 
 /**
- * The interface models any instance which can serve as a destination for logging messages.
+ * The interface models any instance which can serve as a destination for logging messages. Instances of this class
+ * handle the actual writing of logging messages (constructed by a {@link LogWrapper}) to a destination (e.g. a stream,
+ * a file, etc)
  * <p>
  * This interface is in a way "abstract", in that it doesn't contain an update method. {@link LogWrapper}s may call an
  * update method depending on the actual interface, e.g. {@link StringLogOutput} or {@link StreamLogOutput}.
@@ -28,11 +30,16 @@ public interface LogOutput {
 	public int getUpdatePeriod();
 	
 	/**
-	 * @return the format information, assembled via bitwise operations from constants in {@link Logger}.
+	 * @return the format information, assembled via bitwise operations from constants in {@link Logger}. This
+	 *         information is used by the {@link LogWrapper} instance to format messages according to the needs of this
+	 *         particular output.
 	 */
 	public int formatData();
 	
 	/**
+	 * This should return <code>true</code> if there are formatting needs that cannot be fulfilled by using the
+	 * specification constants in {@link Logger}.
+	 * 
 	 * @return <code>true</code> if the {@link #format(Level, String, String)} method should be called to format logging
 	 *         messages.
 	 */

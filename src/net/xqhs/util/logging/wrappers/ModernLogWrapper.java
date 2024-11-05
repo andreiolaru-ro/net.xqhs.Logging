@@ -22,7 +22,7 @@ import net.xqhs.util.logging.output.StringLogOutput;
 /**
  * A {@link LogWrapper} with improved readability and more flexibility in configuring output stream(s).
  * <p>
- * Highlighting is done by un-indenting non-highlighted logs.
+ * Highlighting is done by indenting non-highlighted logs.
  * 
  * @author Andrei Olaru
  */

@@ -15,7 +15,7 @@ import java.io.OutputStream;
 public interface StreamLogOutput extends LogOutput {
 	/**
 	 * This method is called whenever there are new logging messages (or more rarely, according to
-	 * {@link #getUpdatePeriod()}.
+	 * {@link #getUpdatePeriod()}).
 	 */
 	public void update();
 	

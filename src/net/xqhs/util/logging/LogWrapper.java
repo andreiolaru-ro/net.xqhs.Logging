@@ -26,7 +26,10 @@ import net.xqhs.util.logging.output.StringLogOutput;
 import net.xqhs.util.logging.wrappers.ModernLogWrapper;
 
 /**
- * Use this abstract class to implement any [wrapper of a] logging structure used in a {@link Unit}.
+ * Use this abstract class to implement any [wrapper of a] logging structure used in a {@link Unit}. Every time a
+ * logging method from {@link Unit} is used, the logging data should end up (via the {@link #l} method) in an instance
+ * of {@link LogWrapper}, which will organize this data into a string form and output it to one or more
+ * {@link LogOutput}s.
  * <p>
  * All types of wrappers available in the project should be stated in {@link LoggerType}.
  * <p>

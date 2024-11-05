@@ -187,10 +187,8 @@ public class Unit extends Config {
 		if(loggerWrapperType == null)
 			loggerWrapperType = Logger.DEFAULT_LOGGER_WRAPPER;
 		log = LogWrapperFactory.getLogWrapper(loggerWrapperType, logName);
-		for(LogOutput logOutput : MasterLog.outputSet)
-		{
+		for(LogOutput logOutput : MasterLog.getDefaultOutputs())
 			log.addOutput(logOutput);
-		}
 		setLogLevelInternal(level);
 		log.setHighlighted(highlighted);
 		if(MasterLog.GLOBAL_PERFORMANCE_MODE)

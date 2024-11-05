@@ -24,11 +24,11 @@ public class MasterLog {
 	/**
 	 * The default level for newly-created logs.
 	 */
-	protected static Level							defaultLevel			= Level.ALL;
+	protected static Level		defaultLevel			= Level.ALL;
 	/**
 	 * The unit which is given as parent to all logs.
 	 */
-	protected static Unit							masterLog				= new Unit().setUnitName("M-Log");
+	protected static Unit		masterLog				= new Unit().setUnitName("M-Log");
 	/**
 	 * The global switch for performance mode. This can be switched to <code>true</code> <b>only</b> before any logging
 	 * begins.
@@ -37,25 +37,27 @@ public class MasterLog {
 	 * <p>
 	 * The global performance mode cannot be disabled.
 	 */
-	protected static boolean						GLOBAL_PERFORMANCE_MODE	= false;
-
+	protected static boolean	GLOBAL_PERFORMANCE_MODE	= false;
+	
 	/**
 	 * For <i>performance mode</i>, this stores the messages that need to be posted to the log.
 	 * <p>
 	 * The availability of the performance mode itself is indicated by the fact that the queue is not <code>null</code>.
 	 */
-	protected static LinkedBlockingQueue<LogEntry>	processingQueue			= null;
+	protected static LinkedBlockingQueue<LogEntry>	processingQueue		= null;
 	/**
 	 * For logs in <i>performance mode</i>, this is the thread that processes the logging messages.
 	 */
-	protected static Thread							processingThread		= null;
+	protected static Thread							processingThread	= null;
 	/**
 	 * For logs in <i>performance mode</i>, this is the (minimum) time between writings to the output, in milliseconds.
 	 */
-	protected static long							TIME_STEP				= 1000;
-
-	protected static Set<LogOutput> outputSet = null;
-
+	protected static long							TIME_STEP			= 1000;
+	/**
+	 * The set of {@link LogOutput} instances to which all {@link Unit}s should publish their logs.
+	 */
+	protected static Set<LogOutput>					outputSet			= null;
+	
 	/**
 	 * The level of the master unit, which may propagate to other logs.
 	 * 
@@ -65,17 +67,24 @@ public class MasterLog {
 	public static void setLogLevel(Level level) {
 		masterLog.setLogLevel(level);
 	}
-
-	public static void addDefaultOutput(LogOutput logOutput)
-	{
-		if(outputSet==null)
-		{
+	
+	/**
+	 * Removal is not implemented as the new set of outputs would only apply to newly created units.
+	 * 
+	 * @param logOutput
+	 *            - a {@link LogOutput} instance to which all {@link Unit}s should send logs.
+	 */
+	public static void addDefaultOutput(LogOutput logOutput) {
+		if(outputSet == null)
 			outputSet = new HashSet<>();
-			outputSet.add(logOutput);
-		}
-		else{
-			outputSet.add(logOutput);
-		}
+		outputSet.add(logOutput);
+	}
+	
+	/**
+	 * @return the set of default outputs (see {@link #addDefaultOutput}.
+	 */
+	protected static Set<LogOutput> getDefaultOutputs() {
+		return outputSet;
 	}
 	
 	/**

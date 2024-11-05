@@ -1,9 +1,10 @@
 package net.xqhs.util.logging.output;
 
 /**
- * This interface should be implemented by any {@link LogOutput} which needs the log as a {@link String}. It is updated
- * with a string containing the logging messages (ore one logging message, depending on {@link #getUpdatePeriod()}. If
- * {@link #updateWithEntireLog()} is set, the string will contain all messages so far, or just the most recent messages.
+ * This interface should be implemented by any {@link LogOutput} which needs the entire log as a {@link String}. It is
+ * updated with a string containing the logging messages (or one logging message, depending on
+ * {@link #getUpdatePeriod()}). If {@link #updateWithEntireLog()} is set, the string will contain all messages so far,
+ * otherwise just the most recent messages.
  * 
  * @author Andrei Olaru
  */
